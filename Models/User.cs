@@ -6,16 +6,14 @@ namespace ResumeBuilder.Models
     {
         public int Id { get; set; }
         [Required]
-        public string? Name { get; set; }
+        [MaxLength(320)]
+        [EmailAddress]        
+        public string Email { get; set; }
         [Required]
-        [DataType(DataType.EmailAddress)]
-        public string? Email { get; set; }
-        [Required]
-        [DataType(DataType.PhoneNumber)]
-        public string? PhoneNumber { get; set; } = string.Empty;        
-        public string? Address { get; set; } = string.Empty;
-        public List<ProfileEntry>? EducationRecords { get; set; }
-        public List<ProfileEntry>? WorkExperienceRecords { get; set; }
-        public List<ProfileEntry>? ProjectRecords { get; set; }
+        [MaxLength(15)]
+        [DataType(DataType.Password)]        
+        public string Password { get; set; }    
+
+        public UserInfo? UserInfo { get; set; }
     }
 }
