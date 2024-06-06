@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResumeBuilder.Data;
 using ResumeBuilder.Models;
-using ResumeBuilder.Models.ViewModels;
 using System.Security.Claims;
 
 namespace ResumeBuilder.Controllers
@@ -12,10 +11,39 @@ namespace ResumeBuilder.Controllers
     public class AccessController : Controller
     {
         private readonly ResumeBuilderContext _context;
+        private const string accessMessage = "AccessMessage";
 
         public AccessController(ResumeBuilderContext context)
         {
             _context = context;
+        }
+
+        // GET: Access/Create
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // POST: Access/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register([Bind("Email,Password,ConfirmPassword")]User userToRegister)
+        {
+            if (!userToRegister.Password.Equals(userToRegister.ConfirmPassword))
+            {
+                ViewData[accessMessage] = "Passwords don't match";
+                return View();
+            }
+
+            if (ModelState.IsValid)
+            {                
+                _context.Add(userToRegister);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Login");
+            }
+            return View();
         }
 
         public IActionResult Login()
@@ -27,7 +55,7 @@ namespace ResumeBuilder.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(VMLogin modelLogin)
+        public async Task<IActionResult> Login([Bind("Email,Password")]User modelLogin)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == modelLogin.Email);
             if (user != null)
@@ -36,7 +64,7 @@ namespace ResumeBuilder.Controllers
                 {
                     List<Claim> claims = new List<Claim>()
                     {
-                        new Claim(ClaimTypes.NameIdentifier,modelLogin.Email),
+                        new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
                         new Claim("OtherProperties","Example Role")
                     };
 
@@ -55,9 +83,9 @@ namespace ResumeBuilder.Controllers
                     ViewData["UserId"] = user.Id;
                     return RedirectToAction("Index", "Home");
                 }
-                else ViewData["AccessMessage"] = "Password Incorrect";
+                else ViewData[accessMessage] = "Password Incorrect";
             }
-            else ViewData["AccessMessage"] = "User not Found";
+            else ViewData[accessMessage] = "User not Found";
 
             return View();
         }
@@ -67,54 +95,7 @@ namespace ResumeBuilder.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Access");
         }
-
-
-        // GET: Access
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Users.ToListAsync());
-        }
-
-        // GET: Access/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
-        }
-
-        // GET: Access/Create
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        // POST: Access/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Id,Email,Password")] User user)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(user);
-        }
-
+                
         // GET: Access/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {

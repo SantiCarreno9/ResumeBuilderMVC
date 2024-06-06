@@ -1,8 +1,9 @@
-﻿@model ResumeBuilder.Models.ViewModels.VMRegister
+﻿@model ResumeBuilder.Models.User
 
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_CustomLayout.cshtml";
+    const string message = "AccessMessage";
 }
 
 <h1>Create</h1>
@@ -29,6 +30,10 @@
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
             <br />
+            @if (ViewData[message] != null)
+            {
+                <label style="color:red">@ViewData[message]</label>
+            }
             <div class="form-group">
                 <input type="submit" value="Register" class="btn btn-primary" />
             </div>

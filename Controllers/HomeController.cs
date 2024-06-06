@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ResumeBuilder.Data;
 using ResumeBuilder.Models;
 using System.Diagnostics;
 
@@ -9,14 +10,16 @@ namespace ResumeBuilder.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ResumeBuilderContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ResumeBuilderContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
-        {
+        public async Task<IActionResult> Index()
+        {            
             return View();
         }
 

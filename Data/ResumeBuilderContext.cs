@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ResumeBuilder.Models;
 
 namespace ResumeBuilder.Data
@@ -15,6 +11,8 @@ namespace ResumeBuilder.Data
         }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<ResumeBuilder.Models.UserInfo> UserInfo { get; set; } = default!;
+        public DbSet<UserInfo> UsersInfo { get; set; }
+        public DbSet<ProfessionalInfo> ProfessionalInfo { get; set; }
+        public DbSet<ProfileEntry> ProfileEntry { get; set; }
     }
 }

@@ -1,0 +1,110 @@
+﻿@model ResumeBuilder.Models.UserInfo
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_CustomLayout.cshtml";
+
+    IEnumerable<ProfileEntry> educationList = Model?.Account?.ProfessionalInfo?.ProfessionalRecord?.Where(x => x.Category == EntryCategory.Education);
+    IEnumerable<ProfileEntry> workExperienceList = Model?.Account?.ProfessionalInfo?.ProfessionalRecord?.Where(x => x.Category == EntryCategory.WorkExperience);
+}
+
+<h1>Your Profile</h1>
+
+<div class="info-section">
+    <div class="info-section-title">
+        <h4>Basic Info</h4>
+        <a asp-action="EditProfileInfo" asp-route-id="@Model?.UserId">
+            <i class="fas fa-edit"></i>
+        </a>
+    </div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FirstName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FirstName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PhoneNumber)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.LinkedInProfile)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LinkedInProfile)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.WebSiteURL)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WebSiteURL)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.GitHubAccount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.GitHubAccount)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Account.Email)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Account.Email)
+        </dd>
+    </dl>
+
+    <br />
+    <div class="info-section-title">
+        <h4>Education Info</h4>
+        <a asp-action="AddProfileEntry" asp-route-category="@((int)(EntryCategory.Education))">
+            <i class="fas fa-plus-circle"></i>
+        </a>
+    </div>
+    <hr />
+    @if (educationList != null)
+    {
+        <dl class="row">
+            @foreach (var item in educationList)
+            {
+                @Html.DisplayFor(model => item)
+            }
+        </dl>
+    }
+
+    <br />
+    <div class="info-section-title">
+        <h4>Work Experience Info</h4>
+        <a asp-action="AddProfileEntry" asp-route-category="@((int)(EntryCategory.WorkExperience))">
+            <i class="fas fa-plus-circle"></i>
+        </a>
+    </div>
+    <hr />
+    @if (workExperienceList != null)
+    {
+        <dl class="row">
+            @foreach (var item in workExperienceList)
+            {
+                @Html.DisplayFor(model => item)
+            }
+        </dl>
+    }
+</div>
+<div>    
+    <a asp-action="Index">Back to List</a>
+</div>

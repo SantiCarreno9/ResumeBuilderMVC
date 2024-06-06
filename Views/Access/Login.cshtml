@@ -1,14 +1,12 @@
-﻿@model ResumeBuilder.Models.ViewModels.VMLogin
+﻿@model ResumeBuilder.Models.User
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Login";
     Layout = "/Views/Shared/_CustomLayout.cshtml";
     const string message = "AccessMessage";
 }
 
-<h1>Create</h1>
-
-<h4>User</h4>
+<h4>@ViewData["Title"]</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">

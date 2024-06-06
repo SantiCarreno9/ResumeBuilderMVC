@@ -7,6 +7,7 @@ namespace ResumeBuilder.Data
         public static void Initialize(ResumeBuilderContext context)
         {
             context.Database.EnsureCreated();
+            return;
             if (context.Users.Any())
             {
                 return;
@@ -17,7 +18,16 @@ namespace ResumeBuilder.Data
                 new User
                 {
                     Email="santiago.carreno05@gmail.com",
-                    Password="MyResume9*"
+                    Password="MyResume9*",
+                    //UserInfo = new UserInfo
+                    //{
+                    //    FirstName="Santiago",
+                    //    LastName="Carreño",
+                    //    Email="santiago.carreno05@gmail.com",
+                    //    PhoneNumber="4376612248",
+                    //    Address="775 Midland Avenue",
+                        
+                    //}
                 }
             };
 
@@ -27,6 +37,25 @@ namespace ResumeBuilder.Data
             }
 
             context.SaveChanges();
+
+            //var usersInfo = new UserInfo[]
+            //{
+            //    new UserInfo
+            //    {
+            //        UserId = users.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id,
+            //        FirstName="Santiago",
+            //        LastName="Carreño",                    
+            //        PhoneNumber="4376612248",
+            //        Address="775 Midland Avenue"
+            //    }
+            //};
+
+            //foreach(UserInfo userInfo in usersInfo)
+            //{
+            //    context.Add(userInfo);
+            //}
+
+            //context.SaveChanges();
             //var users = new IdentityUser[]{
             //    new IdentityUser
             //    {
