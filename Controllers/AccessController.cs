@@ -29,7 +29,7 @@ namespace ResumeBuilder.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Email,Password,ConfirmPassword")]User userToRegister)
+        public async Task<IActionResult> Register([Bind("Email,Password,ConfirmPassword")]Account userToRegister)
         {
             if (!userToRegister.Password.Equals(userToRegister.ConfirmPassword))
             {
@@ -55,9 +55,9 @@ namespace ResumeBuilder.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login([Bind("Email,Password")]User modelLogin)
+        public async Task<IActionResult> Login([Bind("Email,Password")]Account modelLogin)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == modelLogin.Email);
+            var user = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == modelLogin.Email);
             if (user != null)
             {
                 if (user.Password.Equals(modelLogin.Password))
@@ -104,7 +104,7 @@ namespace ResumeBuilder.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Accounts.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
@@ -117,7 +117,7 @@ namespace ResumeBuilder.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,Password")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,Password")] Account user)
         {
             if (id != user.Id)
             {
@@ -155,7 +155,7 @@ namespace ResumeBuilder.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
+            var user = await _context.Accounts
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
@@ -170,10 +170,10 @@ namespace ResumeBuilder.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Accounts.FindAsync(id);
             if (user != null)
             {
-                _context.Users.Remove(user);
+                _context.Accounts.Remove(user);
             }
 
             await _context.SaveChangesAsync();
@@ -182,7 +182,7 @@ namespace ResumeBuilder.Controllers
 
         private bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.Accounts.Any(e => e.Id == id);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ResumeBuilder.Models
 {
-    public class User
+    public class Account
     {
         public int Id { get; set; }
         [Required]
@@ -24,7 +24,6 @@ namespace ResumeBuilder.Models
         [NotMapped]
         public bool KeepLoggedIn { get; set; }
 
-        public UserInfo? UserInfo { get; set; }
-        public ProfessionalInfo? ProfessionalInfo { get; set; }
+        public ProfileInfo? ProfileInfo { get; set; }        
     }
 }

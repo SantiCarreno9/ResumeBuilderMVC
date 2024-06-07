@@ -10,9 +10,9 @@ namespace ResumeBuilder.Data
         {
         }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserInfo> UsersInfo { get; set; }
-        public DbSet<ProfessionalInfo> ProfessionalInfo { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<PersonalInfo> PersonalInfo { get; set; }
+        public DbSet<ProfileInfo> ProfileInfo { get; set; }
         public DbSet<ProfileEntry> ProfileEntry { get; set; }
     }
 }

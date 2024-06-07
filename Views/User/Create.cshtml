@@ -1,13 +1,11 @@
-﻿@model ResumeBuilder.Models.UserInfo
+﻿@model ResumeBuilder.Models.PersonalInfo
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Personal Info";
     Layout = "~/Views/Shared/_CustomLayout.cshtml";
 }
 
-<h1>Create</h1>
-
-<h4>UserInfo</h4>
+<h4>Personal Info</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -34,9 +32,9 @@
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="LinkedInProfile" class="control-label"></label>
-                <input asp-for="LinkedInProfile" class="form-control" />
-                <span asp-validation-for="LinkedInProfile" class="text-danger"></span>
+                <label asp-for="LinkedInURL" class="control-label"></label>
+                <input asp-for="LinkedInURL" class="form-control" />
+                <span asp-validation-for="LinkedInURL" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="WebSiteURL" class="control-label"></label>

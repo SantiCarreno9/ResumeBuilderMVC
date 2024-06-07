@@ -7,62 +7,132 @@ namespace ResumeBuilder.Data
         public static void Initialize(ResumeBuilderContext context)
         {
             context.Database.EnsureCreated();
-            return;
-            if (context.Users.Any())
+            //return;
+            if (context.Accounts.Any())
             {
                 return;
             }
 
-            var users = new User[]
+            var users = new Account[]
             {
-                new User
+                new Account
                 {
                     Email="santiago.carreno05@gmail.com",
                     Password="MyResume9*",
-                    //UserInfo = new UserInfo
-                    //{
-                    //    FirstName="Santiago",
-                    //    LastName="Carreño",
-                    //    Email="santiago.carreno05@gmail.com",
-                    //    PhoneNumber="4376612248",
-                    //    Address="775 Midland Avenue",
-                        
-                    //}
                 }
             };
 
-            foreach (User user in users)
+            foreach (Account user in users)
             {
                 context.Add(user);
             }
 
             context.SaveChanges();
 
-            //var usersInfo = new UserInfo[]
-            //{
-            //    new UserInfo
-            //    {
-            //        UserId = users.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id,
-            //        FirstName="Santiago",
-            //        LastName="Carreño",                    
-            //        PhoneNumber="4376612248",
-            //        Address="775 Midland Avenue"
-            //    }
-            //};
+            var profileInfo = new ProfileInfo[]
+            {
+                new ProfileInfo
+                {
+                    AccountId = context.Accounts.Single(i=>i.Email.Equals("santiago.carreno05@gmail.com")).Id
+                }
+            };
 
-            //foreach(UserInfo userInfo in usersInfo)
-            //{
-            //    context.Add(userInfo);
-            //}
+            foreach (ProfileInfo pI in profileInfo)
+            {
+                context.Add(pI);
+            }
 
-            //context.SaveChanges();
-            //var users = new IdentityUser[]{
-            //    new IdentityUser
-            //    {
-            //        Email= "santiago.carreno05@gmail.com",
-            //        P
-            //    }
-            //}
+            context.SaveChanges();
+
+            var personalInfo = new PersonalInfo[]
+            {
+                new PersonalInfo
+                {
+                    ProfileInfoId = context.Accounts.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id,
+                    FirstName="Santiago",
+                    LastName="Carreño",
+                    PhoneNumber="437-661-2248",
+                    Address="775 Midland Avenue",
+                    PostalCode="M1K 4E5",
+                    LinkedInURL="https://www.linkedin.com/in/santiago-felipe-carreno-pardo/",
+                    WebSiteURL="https://santicarreno9.github.io/PortfolioWebsite/",
+                    GitHubAccount="SantiCarreno9"
+                }
+            };
+
+            foreach (PersonalInfo pInfo in personalInfo)
+            {
+                context.Add(pInfo);
+            }
+
+            context.SaveChanges();
+
+            int profileInfoId = context.Accounts.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id;
+            var profileEntries = new ProfileEntry[]
+            {
+                new ProfileEntry
+                {
+                    ProfileInfoId = profileInfoId,
+                    Category=EntryCategory.Education,
+                    Title= "Game Programming",
+                    Organization= "Centennial College",
+                    Location= "Toronto, Ontario, Canada",
+                    StartDate= new DateTime(2023,9,5),
+                    EndDate=null,
+                    IsCurrent=true
+                },
+                new ProfileEntry
+                {
+                    ProfileInfoId = profileInfoId,
+                    Category=EntryCategory.Education,
+                    Title= "Bachelor of Mechatronics Engineering",
+                    Organization= "Universidad Militar Nueva Granada",
+                    Location= "Bogotá, Colombia",
+                    StartDate= new DateTime(2015,1,1),
+                    EndDate=new DateTime(2021,3,25),
+                    IsCurrent=false
+                },
+                new ProfileEntry
+                {
+                    ProfileInfoId = profileInfoId,
+                    Category=EntryCategory.WorkExperience,
+                    Title= "VR Developer",
+                    Organization= "Somnium Space",
+                    Location= "Prague, Czech Republic",
+                    StartDate= new DateTime(2022,8,15),
+                    EndDate=new DateTime(2023,9,1),
+                    IsCurrent=false
+                },
+                new ProfileEntry
+                {
+                    ProfileInfoId = profileInfoId,
+                    Category=EntryCategory.WorkExperience,
+                    Title= "Unity Developer",
+                    Organization= "Consultoria GP S.A.S",
+                    Location= "Medellín, Colombia",
+                    StartDate= new DateTime(2021,11,1),
+                    EndDate=new DateTime(2022,08,12),
+                    IsCurrent=false
+                },
+                new ProfileEntry
+                {
+                    ProfileInfoId = profileInfoId,
+                    Category=EntryCategory.WorkExperience,
+                    Title= "VR Developer",
+                    Organization= "MPL eLearning XR Services",
+                    Location= "Bogotá, Colombia",
+                    StartDate= new DateTime(2021,2,1),
+                    EndDate=new DateTime(2021,8,1),
+                    IsCurrent=false
+                }
+            };
+
+            foreach (ProfileEntry profileEntry in profileEntries)
+            {
+                context.Add(profileEntry);
+            }
+
+            context.SaveChanges();            
         }
 
         //public static void Initialize(context)

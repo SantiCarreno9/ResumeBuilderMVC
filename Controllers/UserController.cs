@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using ResumeBuilder.Data;
 using ResumeBuilder.Models;
@@ -25,7 +19,7 @@ namespace ResumeBuilder.Controllers
         // GET: User
         public async Task<IActionResult> Index()
         {
-            if (!_context.UsersInfo.Any() || await _context.UsersInfo.FindAsync(User.GetId().ToInt()) == null)
+            if (!_context.PersonalInfo.Any() || await _context.PersonalInfo.FindAsync(User.GetId().ToInt()) == null)
             {
                 return RedirectToAction("Create");
             }
@@ -45,11 +39,11 @@ namespace ResumeBuilder.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FirstName,LastName,PhoneNumber,Address,LinkedInProfile,WebSiteURL,GitHubAccount")] UserInfo userInfo)
+        public async Task<IActionResult> Create([Bind("FirstName,LastName,PhoneNumber,Address,LinkedInProfile,WebSiteURL,GitHubAccount")] PersonalInfo userInfo)
         {
             if (ModelState.IsValid)
             {
-                userInfo.UserId = int.Parse(User.GetId());
+                userInfo.ProfileInfoId = int.Parse(User.GetId());
                 _context.Add(userInfo);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -60,10 +54,11 @@ namespace ResumeBuilder.Controllers
         // GET: User/Edit/5
         public async Task<IActionResult> EditProfileInfo(int? id)
         {
-            UserInfo? userInfo = await _context.UsersInfo
-                .Include(i => i.Account)
+            PersonalInfo? userInfo = await _context.PersonalInfo
+                .Include(i => i.ProfileInfo)
+                .ThenInclude(i => i.Account)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.UserId == User.GetId().ToInt());
+                .FirstOrDefaultAsync(x => x.ProfileInfoId == User.GetId().ToInt());
             if (userInfo == null)
             {
                 return NotFound();
@@ -76,14 +71,14 @@ namespace ResumeBuilder.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditProfileInfo([Bind("FirstName,LastName,PhoneNumber,Address,LinkedInProfile,WebSiteURL,GitHubAccount")] UserInfo userInfo)
+        public async Task<IActionResult> EditProfileInfo([Bind("FirstName,LastName,PhoneNumber,Address,LinkedInProfile,WebSiteURL,GitHubAccount")] PersonalInfo personalInfo)
         {
-            var userInfoToUpdate = await _context.UsersInfo.FindAsync(User.GetId().ToInt());
+            var userInfoToUpdate = await _context.PersonalInfo.FindAsync(User.GetId().ToInt());
             if (await TryUpdateModelAsync(
                 userInfoToUpdate,
                 "",
                 i => i.FirstName, i => i.LastName, i => i.PhoneNumber, i => i.Address,
-                i => i.LinkedInProfile, i => i.WebSiteURL, i => i.GitHubAccount))
+                i => i.LinkedInURL, i => i.WebSiteURL, i => i.GitHubAccount))
             {
                 try
                 {
@@ -122,7 +117,7 @@ namespace ResumeBuilder.Controllers
         {
             if (ModelState.IsValid)
             {
-                profileEntry.ProfessionalInfoId = User.GetId().ToInt();
+                profileEntry.ProfileInfoId = User.GetId().ToInt();
                 profileEntry.Category = (EntryCategory)category;
                 _context.Add(profileEntry);
                 await _context.SaveChangesAsync();
@@ -135,7 +130,7 @@ namespace ResumeBuilder.Controllers
         public async Task<IActionResult> EditProfileEntry(int? id)
         {
             ProfileEntry? profileEntry = await _context.ProfileEntry.FindAsync(id);
-            if (profileEntry == null || profileEntry.ProfessionalInfoId != User.GetId().ToInt())
+            if (profileEntry == null || profileEntry.ProfileInfoId != User.GetId().ToInt())
             {
                 return NotFound();
             }
@@ -206,12 +201,12 @@ namespace ResumeBuilder.Controllers
                 return NotFound();
             }
 
-            var userInfo = await _context.UsersInfo
+            var userInfo = await _context.ProfileInfo
+                .Include(i => i.PersonalInfo)
+                .Include(i => i.ProfessionalRecord)
                 .Include(i => i.Account)
-                .ThenInclude(i => i.ProfessionalInfo)
-                .ThenInclude(i => i.ProfessionalRecord)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.UserId == User.GetId().ToInt());
+                .FirstOrDefaultAsync(m => m.AccountId == User.GetId().ToInt());
             if (userInfo == null)
             {
                 return NotFound();
@@ -228,8 +223,8 @@ namespace ResumeBuilder.Controllers
                 return NotFound();
             }
 
-            var userInfo = await _context.UsersInfo
-                .FirstOrDefaultAsync(m => m.UserId == id);
+            var userInfo = await _context.PersonalInfo
+                .FirstOrDefaultAsync(m => m.ProfileInfoId == id);
             if (userInfo == null)
             {
                 return NotFound();
@@ -243,10 +238,10 @@ namespace ResumeBuilder.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var userInfo = await _context.UsersInfo.FindAsync(id);
+            var userInfo = await _context.PersonalInfo.FindAsync(id);
             if (userInfo != null)
             {
-                _context.UsersInfo.Remove(userInfo);
+                _context.PersonalInfo.Remove(userInfo);
             }
 
             await _context.SaveChangesAsync();
@@ -270,7 +265,7 @@ namespace ResumeBuilder.Controllers
 
         private bool UserInfoExists(int id)
         {
-            return _context.UsersInfo.Any(e => e.UserId == id);
+            return _context.PersonalInfo.Any(e => e.ProfileInfoId == id);
         }
     }
 }

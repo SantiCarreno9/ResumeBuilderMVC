@@ -6,7 +6,7 @@
 @if (User.Identity.IsAuthenticated)
 {
     <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="User" asp-action="Index">Hello @* @User.Identity?.Name! *@</a>
+            <a class="nav-link text-dark" asp-controller="User" asp-action="Index">My Account</a>
     </li>
     <li class="nav-item">
         <form  class="form-inline" asp-controller="Access" asp-action="LogOut" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

@@ -1,11 +1,11 @@
-﻿@model ResumeBuilder.Models.UserInfo
+﻿@model ResumeBuilder.Models.ProfileInfo
 
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_CustomLayout.cshtml";
 
-    IEnumerable<ProfileEntry> educationList = Model?.Account?.ProfessionalInfo?.ProfessionalRecord?.Where(x => x.Category == EntryCategory.Education);
-    IEnumerable<ProfileEntry> workExperienceList = Model?.Account?.ProfessionalInfo?.ProfessionalRecord?.Where(x => x.Category == EntryCategory.WorkExperience);
+    var educationList = Model?.ProfessionalRecord?.Where(x => x.Category == EntryCategory.Education).OrderByDescending(x => x.StartDate);
+    var workExperienceList = Model?.ProfessionalRecord?.Where(x => x.Category == EntryCategory.WorkExperience).OrderByDescending(x => x.StartDate);
 }
 
 <h1>Your Profile</h1>
@@ -13,53 +13,59 @@
 <div class="info-section">
     <div class="info-section-title">
         <h4>Basic Info</h4>
-        <a asp-action="EditProfileInfo" asp-route-id="@Model?.UserId">
+        <a asp-action="EditProfileInfo" asp-route-id="@Model?.PersonalInfo.ProfileInfoId">
             <i class="fas fa-edit"></i>
         </a>
     </div>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.FirstName)
+            @Html.DisplayNameFor(model => model.PersonalInfo.FirstName)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.FirstName)
+            @Html.DisplayFor(model => model.PersonalInfo.FirstName)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.LastName)
+            @Html.DisplayNameFor(model => model.PersonalInfo.LastName)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.LastName)
+            @Html.DisplayFor(model => model.PersonalInfo.LastName)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumber)
+            @Html.DisplayNameFor(model => model.PersonalInfo.PhoneNumber)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumber)
+            @Html.DisplayFor(model => model.PersonalInfo.PhoneNumber)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
+            @Html.DisplayNameFor(model => model.PersonalInfo.Address)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Address)
+            @Html.DisplayFor(model => model.PersonalInfo.Address)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.LinkedInProfile)
+            @Html.DisplayNameFor(model => model.PersonalInfo.PostalCode)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.LinkedInProfile)
+            @Html.DisplayFor(model => model.PersonalInfo.PostalCode)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.WebSiteURL)
+            @Html.DisplayNameFor(model => model.PersonalInfo.LinkedInURL)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.WebSiteURL)
+            @Html.DisplayFor(model => model.PersonalInfo.LinkedInURL)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.GitHubAccount)
+            @Html.DisplayNameFor(model => model.PersonalInfo.WebSiteURL)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.GitHubAccount)
+            @Html.DisplayFor(model => model.PersonalInfo.WebSiteURL)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PersonalInfo.GitHubAccount)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PersonalInfo.GitHubAccount)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Account.Email)
