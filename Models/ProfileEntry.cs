@@ -25,12 +25,11 @@ namespace ResumeBuilder.Models
         [Required]
         [Column(TypeName = "nvarchar(100)")]
         public string? Location { get; set; }
-
-        //[DataType(DataType.Date),DisplayFormat(ApplyFormatInEditMode =true,DataFormatString = "{0:dd/MM/yyyy}")]
+        
         [DataType(DataType.Date), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         [Display(Name = "From")]
         public DateTime? StartDate { get; set; }
-        //[DataType(DataType.Date), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
+
         [DataType(DataType.Date), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         [Display(Name = "To")]
         public DateTime? EndDate { get; set; }

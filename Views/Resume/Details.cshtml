@@ -1,0 +1,11 @@
+﻿@model ResumeBuilder.Models.ViewModels.VMResume
+
+@{
+    ViewData["Title"] = "Preview";
+    Layout = "~/Views/Shared/_CustomLayout.cshtml";
+}
+
+<partial name="@ViewData["Template"]" />
+<div>    
+    <a asp-action="Index">Back to List</a>
+</div>

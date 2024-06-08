@@ -1,0 +1,87 @@
+﻿html,
+body {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1rem;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    margin: 1em;
+}
+
+#mainLeft {
+    border-right: 1px solid lightgray;
+    padding-right: 2em;
+}
+
+#mainRight {
+    padding-left: 2em;
+}
+
+header {
+    text-align: center;
+}
+
+.hr {
+    border-width: 3px;
+}
+
+h1 {
+    font-weight: 300;
+    font-size: 3rem;
+    text-align: center;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+h2 {
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin: 0;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+h3 {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+h4 {
+    font-weight: 400;
+    font-size: 1rem;
+    margin: 0;
+}
+
+h5 {
+    font-weight: 400;
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+p {
+    font-size: 0.9rem;
+}
+
+li {
+    font-size: 0.9rem;
+}
+
+    li::marker {
+        color: #4e567e;
+    }
+
+
+a {
+    color: black;
+}
+
+    a:hover {
+        color: #4e567e;
+    }
+
+section {
+    position: relative;
+}

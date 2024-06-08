@@ -1,0 +1,42 @@
+﻿@model IEnumerable<ResumeBuilder.Models.Resume>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_CustomLayout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ResumeName)
+            </th>            
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ResumeName)
+                </td>                
+                <td>                    
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="@item.Id" name="id" />
+                        <a asp-action="Details" asp-route-id="@item?.Id"><i class="fas fa-eye"></i></a>
+                        <a asp-action="Edit" asp-route-id="@item?.Id"><i class="fas fa-edit"></i></a>
+                        <button class="transparent-btn" type="submit">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>                    
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

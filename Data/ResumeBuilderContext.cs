@@ -14,5 +14,6 @@ namespace ResumeBuilder.Data
         public DbSet<PersonalInfo> PersonalInfo { get; set; }
         public DbSet<ProfileInfo> ProfileInfo { get; set; }
         public DbSet<ProfileEntry> ProfileEntry { get; set; }
+        public DbSet<Resume> Resumes { get; set; } = default!;
     }
 }

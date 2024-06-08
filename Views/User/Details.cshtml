@@ -13,7 +13,7 @@
 <div class="info-section">
     <div class="info-section-title">
         <h4>Basic Info</h4>
-        <a asp-action="EditProfileInfo" asp-route-id="@Model?.PersonalInfo.ProfileInfoId">
+        <a asp-action="EditPersonalInfo" asp-route-id="@Model?.AccountId">
             <i class="fas fa-edit"></i>
         </a>
     </div>
@@ -56,10 +56,10 @@
             @Html.DisplayFor(model => model.PersonalInfo.LinkedInURL)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.WebSiteURL)
+            @Html.DisplayNameFor(model => model.PersonalInfo.WebsiteURL)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.WebSiteURL)
+            @Html.DisplayFor(model => model.PersonalInfo.WebsiteURL)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.PersonalInfo.GitHubAccount)
@@ -68,10 +68,10 @@
             @Html.DisplayFor(model => model.PersonalInfo.GitHubAccount)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Account.Email)
+            @Html.DisplayNameFor(model => model.PersonalInfo.Email)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Account.Email)
+            @Html.DisplayFor(model => model.PersonalInfo.Email)
         </dd>
     </dl>
 

@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ResumeBuilder.Models
 {
     public class PersonalInfo
     {
+        [JsonIgnore]
         [Key]
         public int ProfileInfoId { get; set; }
 
@@ -17,6 +19,10 @@ namespace ResumeBuilder.Models
         [MaxLength(50)]
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
+
+        [MaxLength(320)]
+        [EmailAddress]
+        public string? Email { get; set; }
 
         [DataType(DataType.PhoneNumber)]
         [Column(TypeName = "varchar(20)")]
@@ -36,12 +42,13 @@ namespace ResumeBuilder.Models
 
         [Column(TypeName = "varchar(100)")]
         [Display(Name = "Website URL")]
-        public string? WebSiteURL { get; set; }
+        public string? WebsiteURL { get; set; }
 
         [Column(TypeName = "varchar(100)")]
         [Display(Name = "GitHub Account")]
         public string? GitHubAccount { get; set; }
 
+        [JsonIgnore]
         public ProfileInfo? ProfileInfo { get; set; }
     }
 }

@@ -39,24 +39,24 @@ namespace ResumeBuilder.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FirstName,LastName,PhoneNumber,Address,LinkedInProfile,WebSiteURL,GitHubAccount")] PersonalInfo userInfo)
+        public async Task<IActionResult> Create([Bind("FirstName,LastName,PhoneNumber,Address,LinkedInProfile,WebSiteURL,GitHubAccount")] PersonalInfo personalInfo)
         {
             if (ModelState.IsValid)
             {
-                userInfo.ProfileInfoId = int.Parse(User.GetId());
-                _context.Add(userInfo);
+                var account = await _context.Accounts.FindAsync(User.GetId());
+                personalInfo.ProfileInfoId = account.Id;
+                personalInfo.Email = account.Email;
+                _context.Add(personalInfo);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(userInfo);
+            return View(personalInfo);
         }
 
         // GET: User/Edit/5
-        public async Task<IActionResult> EditProfileInfo(int? id)
+        public async Task<IActionResult> EditPersonalInfo(int? id)
         {
-            PersonalInfo? userInfo = await _context.PersonalInfo
-                .Include(i => i.ProfileInfo)
-                .ThenInclude(i => i.Account)
+            PersonalInfo? userInfo = await _context.PersonalInfo                                
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.ProfileInfoId == User.GetId().ToInt());
             if (userInfo == null)
@@ -78,7 +78,7 @@ namespace ResumeBuilder.Controllers
                 userInfoToUpdate,
                 "",
                 i => i.FirstName, i => i.LastName, i => i.PhoneNumber, i => i.Address,
-                i => i.LinkedInURL, i => i.WebSiteURL, i => i.GitHubAccount))
+                i => i.LinkedInURL, i => i.WebsiteURL, i => i.GitHubAccount))
             {
                 try
                 {

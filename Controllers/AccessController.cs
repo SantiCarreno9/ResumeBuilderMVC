@@ -50,7 +50,7 @@ namespace ResumeBuilder.Controllers
         {
             ClaimsPrincipal claimUser = HttpContext.User;
             if (claimUser.Identity.IsAuthenticated)
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Resume");
             return View();
         }
 
@@ -81,7 +81,7 @@ namespace ResumeBuilder.Controllers
                         new ClaimsPrincipal(claimsIdentity), properties);
 
                     ViewData["UserId"] = user.Id;
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Resume");
                 }
                 else ViewData[accessMessage] = "Password Incorrect";
             }

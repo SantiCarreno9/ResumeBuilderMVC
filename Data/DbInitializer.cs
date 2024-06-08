@@ -29,11 +29,13 @@ namespace ResumeBuilder.Data
 
             context.SaveChanges();
 
+            int accountId = context.Accounts.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id;
+
             var profileInfo = new ProfileInfo[]
             {
                 new ProfileInfo
                 {
-                    AccountId = context.Accounts.Single(i=>i.Email.Equals("santiago.carreno05@gmail.com")).Id
+                    AccountId = accountId
                 }
             };
 
@@ -48,14 +50,15 @@ namespace ResumeBuilder.Data
             {
                 new PersonalInfo
                 {
-                    ProfileInfoId = context.Accounts.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id,
+                    ProfileInfoId = accountId,
                     FirstName="Santiago",
                     LastName="Carreño",
+                    Email="santiago.carreno05@gmail.com",
                     PhoneNumber="437-661-2248",
                     Address="775 Midland Avenue",
                     PostalCode="M1K 4E5",
                     LinkedInURL="https://www.linkedin.com/in/santiago-felipe-carreno-pardo/",
-                    WebSiteURL="https://santicarreno9.github.io/PortfolioWebsite/",
+                    WebsiteURL="https://santicarreno9.github.io/PortfolioWebsite/",
                     GitHubAccount="SantiCarreno9"
                 }
             };
@@ -66,13 +69,12 @@ namespace ResumeBuilder.Data
             }
 
             context.SaveChanges();
-
-            int profileInfoId = context.Accounts.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id;
+            
             var profileEntries = new ProfileEntry[]
             {
                 new ProfileEntry
                 {
-                    ProfileInfoId = profileInfoId,
+                    ProfileInfoId = accountId,
                     Category=EntryCategory.Education,
                     Title= "Game Programming",
                     Organization= "Centennial College",
@@ -83,7 +85,7 @@ namespace ResumeBuilder.Data
                 },
                 new ProfileEntry
                 {
-                    ProfileInfoId = profileInfoId,
+                    ProfileInfoId = accountId,
                     Category=EntryCategory.Education,
                     Title= "Bachelor of Mechatronics Engineering",
                     Organization= "Universidad Militar Nueva Granada",
@@ -94,7 +96,7 @@ namespace ResumeBuilder.Data
                 },
                 new ProfileEntry
                 {
-                    ProfileInfoId = profileInfoId,
+                    ProfileInfoId = accountId,
                     Category=EntryCategory.WorkExperience,
                     Title= "VR Developer",
                     Organization= "Somnium Space",
@@ -105,7 +107,7 @@ namespace ResumeBuilder.Data
                 },
                 new ProfileEntry
                 {
-                    ProfileInfoId = profileInfoId,
+                    ProfileInfoId = accountId,
                     Category=EntryCategory.WorkExperience,
                     Title= "Unity Developer",
                     Organization= "Consultoria GP S.A.S",
@@ -116,7 +118,7 @@ namespace ResumeBuilder.Data
                 },
                 new ProfileEntry
                 {
-                    ProfileInfoId = profileInfoId,
+                    ProfileInfoId = accountId,
                     Category=EntryCategory.WorkExperience,
                     Title= "VR Developer",
                     Organization= "MPL eLearning XR Services",
