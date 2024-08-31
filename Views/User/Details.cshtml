@@ -1,116 +1,162 @@
-﻿@model ResumeBuilder.Models.ProfileInfo
-
-@{
+﻿@{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_CustomLayout.cshtml";
-
-    var educationList = Model?.ProfessionalRecord?.Where(x => x.Category == EntryCategory.Education).OrderByDescending(x => x.StartDate);
-    var workExperienceList = Model?.ProfessionalRecord?.Where(x => x.Category == EntryCategory.WorkExperience).OrderByDescending(x => x.StartDate);
 }
 
 <h1>Your Profile</h1>
 
 <div class="info-section">
     <div class="info-section-title">
-        <h4>Basic Info</h4>
-        <a asp-action="EditPersonalInfo" asp-route-id="@Model?.AccountId">
-            <i class="fas fa-edit"></i>
-        </a>
+        <div id="personal-info-placeholder" class="w-100"></div>
     </div>
     <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.FirstName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.FirstName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.LastName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.LastName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.PhoneNumber)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.PhoneNumber)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.Address)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.Address)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.PostalCode)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.PostalCode)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.LinkedInURL)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.LinkedInURL)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.WebsiteURL)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.WebsiteURL)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.GitHubAccount)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.GitHubAccount)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PersonalInfo.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PersonalInfo.Email)
-        </dd>
-    </dl>
-
     <br />
     <div class="info-section-title">
         <h4>Education Info</h4>
-        <a asp-action="AddProfileEntry" asp-route-category="@((int)(EntryCategory.Education))">
+        <button id="add-education" class="btn">
             <i class="fas fa-plus-circle"></i>
-        </a>
+        </button>
     </div>
     <hr />
-    @if (educationList != null)
-    {
-        <dl class="row">
-            @foreach (var item in educationList)
-            {
-                @Html.DisplayFor(model => item)
-            }
-        </dl>
-    }
-
+    <dl id="education-list" class="row">
+    </dl>
     <br />
     <div class="info-section-title">
         <h4>Work Experience Info</h4>
-        <a asp-action="AddProfileEntry" asp-route-category="@((int)(EntryCategory.WorkExperience))">
+        <button id="add-experience" class="btn">
             <i class="fas fa-plus-circle"></i>
-        </a>
+        </button>
     </div>
     <hr />
-    @if (workExperienceList != null)
-    {
-        <dl class="row">
-            @foreach (var item in workExperienceList)
-            {
-                @Html.DisplayFor(model => item)
+    <dl id="experience-list" class="row">
+    </dl>
+</div>
+<button id="open-modal-btn" type="button" class="btn btn-primary" style="display:none" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                @* <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1> *@
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Personal Info
+            loadPersonalInfo();
+
+            function loadPersonalInfo() {
+                const actionId = @((int)FormActions.None);
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetPersonalInfoForm")',
+                    data: { actionId: actionId },
+                    success: function (result) {
+                        const container = $('#personal-info-placeholder');
+                        $(container).empty();
+                        $(container).append(result);
+                        $(container).find('#cancel-btn').click(function () {
+                            loadPersonalInfo();
+                        });
+                    },
+                    error: function () {
+                        alert("Error trying to retrieve Entries");
+                    }
+                })
             }
-        </dl>
-    }
-</div>
-<div>    
-    <a asp-action="Index">Back to List</a>
-</div>
+
+            // Profile Entries
+
+            loadProfileEntries(@((int)EntryCategory.Education));
+            loadProfileEntries(@((int)EntryCategory.WorkExperience));
+
+            $("#add-education").click(function () {
+                openEntryForm(@((int)EntryCategory.Education));                
+            })
+
+            $("#add-experience").click(function () {
+                openEntryForm(@((int)EntryCategory.WorkExperience));                
+            })
+
+            function loadProfileEntries(categoryId) {
+                const actionId = @((int)FormActions.None);
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetProfileEntries")',
+                    data: { category: categoryId, actionId: actionId },
+                    success: function (result) {
+                        let container;
+                        if (categoryId == @((int)(EntryCategory.Education)))
+                            container = "#education-list";
+                        else container = "#experience-list";
+                        $(container).empty();
+                        $(container).append(result);
+                        const containerJs = $(container)[0];
+                        let entries = containerJs.getElementsByClassName('profile-entry-container');
+                        for (let i = 0; i < entries.length; i++) {
+                            entries[i].classList.add('card');
+                            entries[i].classList.add('mb-2');
+                        }
+                    },
+                    error: function () {
+                        alert("Error trying to retrieve Entries");
+                    }
+                })
+            }
+
+            function openEntryForm(categoryId) {
+                const actionId = @((int)FormActions.Create);
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetProfileEntryForm")',
+                    data: { category: categoryId, actionId: actionId },
+                    success: function (result) {
+                    },
+                    error: function () {
+                        alert("Error trying to retrieve AddProfileEntry");
+                    }
+                })
+            }            
+
+            $(document).ajaxSuccess(function (event, xhr, settings) {
+                if (settings.url.includes('@Url.Action("AddProfileEntry")') ||
+                    settings.url.includes('@Url.Action("UpdateProfileEntry")')) {
+                    var response = xhr.responseJSON;
+                    loadProfileEntries(response.category);
+                    hideForm();
+                }
+                else if (settings.url.includes('@Url.Action("GetProfileEntryForm")')) {
+                    console.log('GetProfileEntryForm');
+                    var result = xhr.responseText;
+                    console.log(result);
+                    $(".modal-body").empty();
+                    $(".modal-body").append(result);
+                    $(".modal-body").find("#cancel-btn").click(function () {
+                        hideForm()
+                    });
+                    $("#open-modal-btn").trigger("click");
+                }
+            });
+            
+            function hideForm() {
+                $(".btn-close").trigger("click");
+            }
+
+
+        });
+
+    </script>
+}

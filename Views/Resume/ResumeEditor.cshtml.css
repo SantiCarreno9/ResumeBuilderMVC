@@ -1,0 +1,29 @@
+﻿.resume-editor-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden;
+}
+
+    .resume-editor-container .resume {
+        width: 60%;
+    }
+
+.resume-editor {
+    width: 40%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+    .resume-editor .editor {
+        width: 100%;
+    }
+
+    .resume-editor .resume {
+        border: 10px;
+    }
+
+.editable-content-cont{
+    display:flex;
+    flex-direction:row;
+}

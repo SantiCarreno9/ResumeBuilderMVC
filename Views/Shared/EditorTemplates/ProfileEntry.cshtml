@@ -1,40 +1,51 @@
 ﻿@model ProfileEntry
+@{
+    var uniqueId = Guid.NewGuid().ToString();
+}
 
-<div class="form-group">
-    <label asp-for="Title" class="control-label"></label>
-    <input asp-for="Title" class="form-control" />
-    <span asp-validation-for="Title" class="text-danger"></span>
-</div>
-<div class="form-group">
-    <label class="control-label">@ViewData["Organization"]</label>
-    <input asp-for="Organization" class="form-control" />
-    <span asp-validation-for="Organization" class="text-danger"></span>
-</div>
-<div class="form-group">
-    <label asp-for="Location" class="control-label"></label>
-    <input asp-for="Location" class="form-control" />
-    <span asp-validation-for="Location" class="text-danger"></span>
-</div>
-<div class="form-group">
-    <label asp-for="StartDate" class="control-label"></label>
-    <input type="date" asp-for="StartDate" asp-format="{0:dd /MM/yyyy}" class="form-control" />
-    <span asp-validation-for="StartDate" class="text-danger"></span>
-</div>
-<div class="form-group">
-    <label asp-for="EndDate" class="control-label"></label>
-    <input type="date" asp-for="EndDate" asp-format="{0:dd /MM/yyyy}" class="form-control" id="end-date-input" />
-    <span asp-validation-for="EndDate" class="text-danger"></span>
-</div>
-<div class="form-group form-check">
-    <label class="form-check-label">
-        <input class="form-check-input" asp-for="IsCurrent" onchange="toggleEndDateInput()" id="current-check" /> @Html.DisplayNameFor(model => model.IsCurrent)
-    </label>
-</div>
-<div class="form-group">
-    <label asp-for="Details" class="control-label"></label>
-    <div id="rich-editor"></div>
-    <input type="hidden" asp-for="Details" id="details-area" />
-    <span asp-validation-for="Details" class="text-danger"></span>
+<div class="w-100">
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label class="control-label">@ViewData["Organization"]</label>
+        <input asp-for="Organization" class="form-control" />
+        <span asp-validation-for="Organization" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Location" class="control-label"></label>
+        <input asp-for="Location" class="form-control" />
+        <span asp-validation-for="Location" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="StartDate" class="control-label"></label>
+        <input type="date" asp-for="StartDate" class="form-control" />
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+    </div>
+    <div id="end-date-input" class="form-group" style='display:(@Model?.IsCurrent?"none":"block")'>
+        <label asp-for="EndDate" class="control-label"></label>
+        <input type="date" asp-for="EndDate" asp-format="{0:dd/MM/yyyy}" class="form-control" />
+        <span asp-validation-for="EndDate" class="text-danger"></span>
+    </div>
+    <div class="form-group form-check">
+        <label class="form-check-label">
+            <input class="form-check-input" asp-for="IsCurrent" onchange="toggleEndDateInput()" id="current-check" /> @Html.DisplayNameFor(model => model.IsCurrent)
+        </label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Details" class="control-label"></label>
+        <input type="hidden" asp-for="Details" id="details-area" />
+        @await Html.PartialAsync("/Views/Shared/_RichTextEditor.cshtml", new TextEditor { FormField = "details-area" })
+        <span asp-validation-for="Details" class="text-danger"></span>
+    </div>
 </div>
 
-<script src="/Views/Shared/EditorTemplates/ProfileEntry.cshtml.js"></script>
+<script type="text/javascript">
+    // $(document).ready(function () {
+    //     $("#current-check").change(function () {
+    //         $("#end-date-input").css("display", (this.checked ? "none" : "block"));
+    //     })
+    // });
+</script>

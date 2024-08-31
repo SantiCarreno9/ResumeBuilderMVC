@@ -9,7 +9,7 @@
 
 <h4>Resume</h4>
 <hr />
-<div class="row">
+@* <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>            
@@ -29,13 +29,13 @@
                 <span asp-validation-for="Skills" class="text-danger"></span>
             </div>
             @Html.EditorFor(model => model.PersonalInfo)
-            @Html.EditorFor(model => model.ProfessionalRecord)
+            @Html.EditorFor(model => model.ProfileEntries)
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
-</div>
+</div> *@
 
 <div>
     <a asp-action="Index">Back to List</a>

@@ -1,0 +1,25 @@
+﻿@model TextEditor
+@{
+    string id = Model.Id ?? "rich-text-editor";
+}
+<div>
+    <div id=@id></div>
+</div>
+
+<script>
+    (function () {
+        const parent = $("#@(Model.ParentId)");
+        const container = $(parent).find("#@id")[0];//[0] to get the javascript element from the jquery one
+        const quill = new Quill(container, {
+            theme: 'snow'
+        });
+        const field = $(parent).find("#@(Model.FormField)")[0];//[0] to get the javascript element from the jquery one
+        quill.root.innerHTML = field.value;
+
+        quill.on('text-change', (delta, oldDelta, source) => {
+            if (source == 'user') {
+                field.value = quill.getSemanticHTML();
+            }
+        });
+    })();
+</script>

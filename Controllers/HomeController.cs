@@ -9,13 +9,11 @@ namespace ResumeBuilder.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly ResumeBuilderContext _context;
+        private readonly ILogger<HomeController> _logger;        
 
-        public HomeController(ILogger<HomeController> logger, ResumeBuilderContext context)
+        public HomeController(ILogger<HomeController> logger)
         {
-            _logger = logger;
-            _context = context;
+            _logger = logger;            
         }
 
         public async Task<IActionResult> Index()

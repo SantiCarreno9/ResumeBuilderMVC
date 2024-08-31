@@ -4,20 +4,18 @@
     ViewData["Title"] = "Add";
     Layout = "/Views/Shared/_CustomLayout.cshtml";
 }
+<div class="container">
+    <h1>@ViewData["Title"] @ViewData["EntryCategoryText"] Entry</h1>
+    <hr />
+    <form asp-action="AddProfileEntry" asp-route-category="@ViewData["EntryCategory"]" method="post" id="form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @Html.EditorFor(model => model)
+        <br />
+        <div class="form-group">
+            <input type="submit" value="Add" class="btn btn-primary" />
+        </div>
+    </form>
 
-<h1>@ViewData["Title"] @ViewData["EntryCategoryText"]</h1>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="AddProfileEntry" asp-route-category="@ViewData["EntryCategory"]" method="post" id="form">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>            
-            @Html.EditorFor(model => model)
-            <br />
-            <div class="form-group">
-                <input type="submit" value="Add" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
 </div>
 
 <div>

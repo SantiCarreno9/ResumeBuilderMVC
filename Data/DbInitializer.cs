@@ -4,53 +4,39 @@ namespace ResumeBuilder.Data
 {
     public static class DbInitializer
     {
-        public static void Initialize(ResumeBuilderContext context)
+        public static void Initialize(ApplicationDbContext context)
         {
             context.Database.EnsureCreated();
             //return;
-            if (context.Accounts.Any())
-            {
-                return;
-            }
+            //if (context.Accounts.Any())
+            //{
+            //    return;
+            //}
 
-            var users = new Account[]
-            {
-                new Account
-                {
-                    Email="santiago.carreno05@gmail.com",
-                    Password="MyResume9*",
-                }
-            };
+            //var users = new Account[]
+            //{
+            //    new Account
+            //    {
+            //        Email="santiago.carreno05@gmail.com",
+            //        Password="MyResume9*",
+            //    }
+            //};
 
-            foreach (Account user in users)
-            {
-                context.Add(user);
-            }
+            //foreach (Account user in users)
+            //{
+            //    context.Add(user);
+            //}
 
-            context.SaveChanges();
+            //context.SaveChanges();
 
-            int accountId = context.Accounts.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id;
-
-            var profileInfo = new ProfileInfo[]
-            {
-                new ProfileInfo
-                {
-                    AccountId = accountId
-                }
-            };
-
-            foreach (ProfileInfo pI in profileInfo)
-            {
-                context.Add(pI);
-            }
-
-            context.SaveChanges();
+            //int accountId = context.Accounts.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id;
+            string userId = "";                       
 
             var personalInfo = new PersonalInfo[]
             {
                 new PersonalInfo
                 {
-                    ProfileInfoId = accountId,
+                    UserId = userId,
                     FirstName="Santiago",
                     LastName="Carreño",
                     Email="santiago.carreno05@gmail.com",
@@ -59,7 +45,7 @@ namespace ResumeBuilder.Data
                     PostalCode="M1K 4E5",
                     LinkedInURL="https://www.linkedin.com/in/santiago-felipe-carreno-pardo/",
                     WebsiteURL="https://santicarreno9.github.io/PortfolioWebsite/",
-                    GitHubAccount="SantiCarreno9"
+                    GitHubAccount="https://github.com/SantiCarreno9"
                 }
             };
 
@@ -74,7 +60,7 @@ namespace ResumeBuilder.Data
             {
                 new ProfileEntry
                 {
-                    ProfileInfoId = accountId,
+                    UserId = userId,
                     Category=EntryCategory.Education,
                     Title= "Game Programming",
                     Organization= "Centennial College",
@@ -85,7 +71,7 @@ namespace ResumeBuilder.Data
                 },
                 new ProfileEntry
                 {
-                    ProfileInfoId = accountId,
+                    UserId = userId,
                     Category=EntryCategory.Education,
                     Title= "Bachelor of Mechatronics Engineering",
                     Organization= "Universidad Militar Nueva Granada",
@@ -96,7 +82,7 @@ namespace ResumeBuilder.Data
                 },
                 new ProfileEntry
                 {
-                    ProfileInfoId = accountId,
+                    UserId = userId,
                     Category=EntryCategory.WorkExperience,
                     Title= "VR Developer",
                     Organization= "Somnium Space",
@@ -107,7 +93,7 @@ namespace ResumeBuilder.Data
                 },
                 new ProfileEntry
                 {
-                    ProfileInfoId = accountId,
+                    UserId = userId,
                     Category=EntryCategory.WorkExperience,
                     Title= "Unity Developer",
                     Organization= "Consultoria GP S.A.S",
@@ -118,7 +104,7 @@ namespace ResumeBuilder.Data
                 },
                 new ProfileEntry
                 {
-                    ProfileInfoId = accountId,
+                    UserId = userId,
                     Category=EntryCategory.WorkExperience,
                     Title= "VR Developer",
                     Organization= "MPL eLearning XR Services",

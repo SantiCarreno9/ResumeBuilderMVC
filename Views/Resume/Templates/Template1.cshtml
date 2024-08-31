@@ -1,96 +1,122 @@
 ﻿@model ResumeBuilder.Models.ViewModels.VMResume
 
-<header id="header">
-    <!-- resume header with your name and title -->
-    <h1>@Model?.PersonalInfo.FirstName @Model?.PersonalInfo.LastName</h1>
-    <hr>
-    <h2>@Model?.JobTitle</h2>
-    <hr>
-</header>
-<main>
-    <article id="mainLeft">
-        <section>
-            <h2>CONTACT</h2>
-            <br>
-            <!-- PHONE NUMBER -->
-            <p>
-                <i class="fas fa-phone" aria-hidden="true"></i>
-                @Model?.PersonalInfo.PhoneNumber
-            </p>
-            <!-- EMAIL -->
-            <p>
-                <a href="mailto:@Model?.PersonalInfo.Email" target="_blank" rel="noopener noreferrer">
-                    <i class="fa fa-envelope" aria-hidden="true"></i>
-                    @Model?.PersonalInfo.Email
-                </a>
-            </p>
-            <!-- LINKEDIN -->
-            <p>
-                <a href="@Model?.PersonalInfo.LinkedInURL" target="_blank" rel="noopener noreferrer">
-                    <i class="fab fa-linkedin" aria-hidden="true"></i>
-                    @Model?.PersonalInfo.FirstName
-                </a>
-            </p>
-            <!-- GITHUB -->
-            @if (Model?.PersonalInfo.GitHubAccount != null)
-            {
+@{
+    string GetDates(DateTime? startDate, DateTime? endDate)
+    {
+        if (!startDate.HasValue)
+            return "";
+        string startDateText = startDate.Value.ToString("MMM yyyy");
+        string endDateText = endDate.HasValue ? endDate.Value.ToString("MMM yyyy") : "Present";
+        return startDate + " - " + endDate;
+    }
+}
+<div class="resume">
+    <header id="header">
+        <!-- resume header with your name and title -->
+        <h1>@Model?.PersonalInfo?.FirstName @Model?.PersonalInfo?.LastName</h1>
+        <hr>
+        <h2>@Model?.ResumeInfo?.JobTitle</h2>
+        <hr>
+    </header>
+    <main>
+        <article id="mainLeft">
+            <section>
+                <h2>CONTACT</h2>
+                <br>
+                <!-- PHONE NUMBER -->
                 <p>
-                    <a href="https://github.com/@Model?.PersonalInfo.GitHubAccount" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-github" aria-hidden="true"></i>
-                        @Model?.PersonalInfo.GitHubAccount
+                    <i class="fas fa-phone" aria-hidden="true"></i>
+                    @Model?.PersonalInfo?.PhoneNumber
+                </p>
+                <!-- EMAIL -->
+                <p style="word-wrap:anywhere">
+                    <a href="mailto:@Model?.PersonalInfo?.Email" target="_blank" rel="noopener noreferrer">
+                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        @Model?.PersonalInfo?.Email
                     </a>
                 </p>
-            }
-            <!-- PORTFOLIO -->
-            @if (@Model?.PersonalInfo.WebsiteURL != null)
-            {
+                <!-- LINKEDIN -->
                 <p>
-                    <a href="@Model?.PersonalInfo.WebsiteURL" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-dev" aria-hidden="true"></i>
-                        Website
+                    <a href="@Model?.PersonalInfo?.LinkedInURL" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin" aria-hidden="true"></i>
+                        @Model?.PersonalInfo?.FirstName
                     </a>
                 </p>
-            }
+                <!-- GITHUB -->
+                @if (Model?.PersonalInfo?.GitHubAccount != null)
+                {
+                    <p>
+                        <a href="https://github.com/@Model?.PersonalInfo?.GitHubAccount" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-github" aria-hidden="true"></i>
+                            @Model?.PersonalInfo?.GitHubAccount
+                        </a>
+                    </p>
+                }
+                <!-- PORTFOLIO -->
+                @if (@Model?.PersonalInfo?.WebsiteURL != null)
+                {
+                    <p>
+                        <a href="@Model?.PersonalInfo.WebsiteURL" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-dev" aria-hidden="true"></i>
+                            Website
+                        </a>
+                    </p>
+                }
 
-        </section>
-        <section>
-            @if (Model?.Skills != null)
+            </section>
+            <section>
+                @if (Model?.ResumeInfo?.Skills != null)
+                {
+                    <h2>SKILLS</h2>
+                    @Html.Raw(Model?.ResumeInfo?.Skills)
+                }
+            </section>
+            @if (Model?.ProfileEntries != null)
             {
-                <h2>SKILLS</h2>
-                @Model?.Skills
+                <section>
+                    <h2>EDUCATION</h2>
+                    <br>
+                    @foreach (var item in Model?.ProfileEntries)
+                    {
+                        <h3>@item.Title</h3>
+                        <h4>@item.Organization</h4>
+                        <h4>@(GetDates(item.StartDate, item.EndDate))</h4>
+                        <br>
+                    }
+                </section>
             }
-        </section>
-        @* @if (educationItems != null)
-        {
-            <Education Items="educationItems" />
-        } *@
-        <!-- OPTIONAL -->
-        @* <section>
-        <h2>ACHIEVEMENTS</h2>
-        <br>
-        <a href="https://ieeexplore.ieee.org/document/9419164" target="_blank" rel="noopener noreferrer">IEEE Paper publication</a>
-        </section> *@
-    </article>
-    <article id="mainRight">
-        <section>
-            @* @if (!string.IsNullOrEmpty(basicInfo.Description))
+            @* @if (educationItems != null)
             {
+            <Education Items="educationItems" />
+            } *@
+            <!-- OPTIONAL -->
+            @* <section>
+            <h2>ACHIEVEMENTS</h2>
+            <br>
+            <a href="https://ieeexplore.ieee.org/document/9419164" target="_blank" rel="noopener noreferrer">IEEE Paper publication</a>
+            </section> *@
+        </article>
+        <article id="mainRight">
+            <section>
+                @* @if (!string.IsNullOrEmpty(basicInfo.Description))
+                {
                 <h2>ABOUT</h2>
                 <!-- about you -->
                 <p>@basicInfo.Description</p>
-            } *@
-        </section>
-     @*    @if (experienceItems != null)
-        {
+                } *@
+            </section>
+            @*    @if (experienceItems != null)
+            {
             <Experience Title="EXPERIENCE" Items="experienceItems" />
-        } *@
-        @* @if (projectItems != null)
-        {
-        <Experience Title="PROJECTS" Items="@projectItems" />
-        } *@
-        @* @if (projectItems != null)
-        {
-        <Experience Title="PROJECTS" Items="@projectItems" />
-        } *@
-    </article>
-</main>
+            } *@
+            @* @if (projectItems != null)
+            {
+            <Experience Title="PROJECTS" Items="@projectItems" />
+            } *@
+            @* @if (projectItems != null)
+            {
+            <Experience Title="PROJECTS" Items="@projectItems" />
+            } *@
+        </article>
+    </main>
+</div>

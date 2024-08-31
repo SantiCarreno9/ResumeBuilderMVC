@@ -1,0 +1,252 @@
+﻿@model ResumeBuilder.Models.ViewModels.VMResume
+
+@{
+    // ViewData["Title"] = "Create";
+    // Layout = "~/Views/Shared/_CustomLayout.cshtml";
+}
+
+<div class="container">
+    <form asp-action="Create" id="resume-form">
+        @* <input type="hidden" asp-for="ResumeInfo.ResumeName" class="form-control" id="resume-name" />
+        <div class="editable-content-cont">
+            <h1 contenteditable="true" id="resume-name-dummy">
+                @(Model.ResumeInfo.ResumeName ?? "Untitled")
+            </h1>
+            <i class="fas fa-edit"></i>
+        </div> *@
+        <hr />
+        <div class="accordion w-100" id="customAccordion">
+            <div class="resume-editor-container">
+                <div class="resume-editor">
+                    <div class="editor">
+                        @* <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
+                                        onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-basic" aria-expanded="false" aria-controls="collapse-basic" )">
+                                    Basic Info
+                                </button>
+                            </div>
+                            <div id="collapse-basic" class="accordion-collapse collapse show" data-bs-parent="#customAccordion">
+                                <div class="accordion-body">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="info-section">
+                                        <div class="form-group">
+                                            <label asp-for="ResumeInfo.JobTitle" class="control-label"></label>
+                                            <input asp-for="ResumeInfo.JobTitle" class="form-control" />
+                                            <span asp-validation-for="ResumeInfo.JobTitle" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="ResumeInfo.Skills" class="control-label"></label>
+                                            <input type="hidden" asp-for="ResumeInfo.Skills" class="form-control" id="skills-text" />
+                                            @await Html.PartialAsync("/Views/Shared/_RichTextEditor.cshtml", new TextEditor { ParentId = "info-section", FormField = "skills-text" })
+                                            <span asp-validation-for="ResumeInfo.Skills" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="ResumeInfo.Description" class="control-label"></label>
+                                            <input type="hidden" asp-for="ResumeInfo.Description" class="form-control" id="description-text" />
+                                            @await Html.PartialAsync("/Views/Shared/_RichTextEditor.cshtml", new TextEditor { ParentId = "info-section", FormField = "description-text" })
+                                            <span asp-validation-for="ResumeInfo.Description" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> *@
+
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
+                                        onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-personal" aria-expanded="false" aria-controls="collapse-personal" )">
+                                    Personal Info
+                                </button>
+                            </div>
+                            <div id="collapse-personal" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
+                                <div id="personal-info-placeholder" class="accordion-body">
+                                    @* @Html.EditorFor(model => model.PersonalInfo) *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
+                                        onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-professional" aria-expanded="false" aria-controls="collapse-professional" )">
+                                    Professional Experience
+                                </button>
+                            </div>
+                            <div id="collapse-professional" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
+                                <div id="education-entries-placeholder" class="accordion-body">
+                                    @* @if (Model?.ProfileEntries != null)
+                                    {
+                                        <div class="accordion w-100" id="professionalAccordion">
+                                            @{
+                                                var index = 0;
+                                            }
+                                            @foreach (var ProfessionalRecord in Model.ProfileEntries)
+                                            {
+                                                <div class="accordion-item">
+                                                    <div class="accordion-header">
+                                                        <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
+                                                                onclick:preventDefault data-bs-toggle="collapse" data-bs-target="@($"#collapse-professional-{ProfessionalRecord.Id}")" aria-expanded="false" aria-controls=@($"collapse-professional-{ProfessionalRecord.Id}")" )">
+                                                            <div class="d-flex flex-row">
+                                                                @ProfessionalRecord.Organization
+                                                        </button>
+                                                    </div>
+                                                    <div id="@($"collapse-professional-{ProfessionalRecord.Id}")" class="accordion-collapse collapse show" data-bs-parent="#professionalAccordion">
+                                                        <div class="accordion-body">
+                                                            @Html.EditorFor(model => ProfessionalRecord)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                index++;
+                                            }
+                                        </div>
+                                    } *@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container" id="resume-preview-container">
+                </div>
+            </div>
+        </div>
+        <div class="form-group mt-2">
+            <input type="button" value="Preview" class="btn btn-primary" id="preview-btn" />
+            <input type="submit" value="Save" class="btn btn-primary" />
+            <a type="submit" class="btn btn-secondary" href="/index">Back to List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript">
+        const form = document.getElementById("resume-form");
+
+        if (form != null) {
+            form.onsubmit = function () {
+                document.getElementById("resume-name").value =
+                    document.getElementById("resume-name-dummy").innerHTML;
+            }
+        }
+
+        $(document).ready(function () {
+
+            // Personal Info
+            loadPersonalInfo();
+
+            function loadPersonalInfo() {
+                const actionId = @((int)FormActions.None);
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetPersonalInfoForm")',
+                    data: { resumeId: '@Model.Id', actionId: actionId },
+                    success: function (result) {
+                        const container = $('#personal-info-placeholder');
+                        $(container).empty();
+                        $(container).append(result);
+                        $(container).find('#cancel-btn').click(function () {
+                            loadPersonalInfo();
+                        });
+                    },
+                    error: function () {
+                        alert("Error trying to retrieve Entries");
+                    }
+                })
+            }
+
+
+
+
+            let templateId = 1;
+            $("#preview-btn").click(function () {
+                if ($("#resume-form").valid()) {
+                    var formData = @(Json.Serialize(Model));
+                    // var formData = $("#resume-form").serialize();
+                    // var formData = $("#resume-form").serializeArray();
+                    // var form = $("#resume-form");
+                    // var formData = getFormData($("#resume-form"));
+                    // var formData = objectifyForm($("#resume-form").serializeArray());
+                    // var formData = $("#resume-form").serializeArray().map(function (x) {
+                    //     this[x.name] = x.value;
+                    //     return this;
+                    // };
+                    console.log(formData)
+                    $.ajax({
+                        url: '@Url.Action("CreateResumePreview")?templateid=' + templateId,
+                        type: 'POST',
+                        data: { resume: formData },
+                        // data: JSON.stringify(formData),
+                        dataType: 'json',
+                        contentType: 'application/json, charset=utf-8',
+                        success: function (response) {
+                            // console.log(response.request);
+                            console.log('response');
+                            $("#resume-preview-container").empty();
+                            $("#resume-preview-container").append(response);
+                        },
+                        error: function (request, status, error) {
+                            console.log(request.responseText);
+                        }
+                    });
+                }
+            })
+
+            function getFormData($form) {
+                var unindexed_array = $form.serializeArray();
+                var indexed_array = {};
+
+                $.map(unindexed_array, function (n, i) {
+                    indexed_array[n['name']] = n['value'];
+                });
+
+                return indexed_array;
+            }
+
+            function objectifyForm(formArray) {
+                //serialize data function
+                var returnArray = {};
+                var personalInfoArray = {};
+                var professionalInfoArray = {};
+                for (var i = 0; i < formArray.length; i++) {
+                    if (formArray[i]['name'].includes('PersonalInfo')) {
+                        let name = formArray[i]['name'].split('.')[1];
+                        personalInfoArray[name] = formArray[i]['value'];
+                    }
+                    else if (formArray[i]['name'].includes('ProfessionalRecord')) {
+                        let name = formArray[i]['name'].split('.')[1];
+                        professionalInfoArray[name] = formArray[i]['value'];
+                    }
+                    else {
+                        returnArray[formArray[i]['name']] = formArray[i]['value'];
+                    }
+                }
+                console.log(personalInfoArray);
+                console.log(returnArray);
+                return JSON.stringify({ _: returnArray, PersonalInfo: personalInfoArray, ProfessionalRecord: professionalInfoArray });
+                // return JSON.stringify(returnArray);
+            }
+
+            function OpenEntryForm(categoryId) {
+
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("AddProfileEntry")',
+                    data: { category: categoryId },
+                    success: function (result) {
+                        $(".modal-body").empty();
+                        $(".modal-body").append(result);
+                        $("#cancel-btn").click(function () {
+                            HideForm()
+                        });
+                        $("#open-modal-btn").trigger("click");
+                    },
+                    error: function () {
+                        alert("Error trying to retrieve AddProfileEntry");
+                    }
+                })
+            }
+        });
+    </script>
+}

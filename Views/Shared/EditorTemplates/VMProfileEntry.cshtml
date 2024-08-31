@@ -1,0 +1,121 @@
+﻿@model ResumeBuilder.Models.ViewModels.VMProfileEntry
+@{
+    FormActions action = (FormActions)ViewData["Action"];
+    string detailsEditor = "details-text-editor";
+    // string context = @ViewData["Context"].ToString();
+}
+
+<div id="profile-entry-form-@(Model.Id)" class="profile-entry-container d-flex flex-row">
+    <form asp-action="Create" id="form">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Category" />
+        <div class="form-floating mb-2">
+            <input asp-for="Title" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+            <label asp-for="Title" class="control-label"></label>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-floating mb-2">
+            <input asp-for="Organization" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+            <label asp-for="Organization" class="control-label"></label>
+            <span asp-validation-for="Organization" class="text-danger"></span>
+        </div>
+        <div class="form-floating mb-2">
+            <input asp-for="Location" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+            <label asp-for="Location" class="control-label"></label>
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+        <div class="form-floating mb-2">
+            <input type="date" asp-for="StartDate" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+            <label asp-for="StartDate" class="control-label"></label>
+            <span asp-validation-for="StartDate" class="text-danger"></span>
+        </div>
+        <div class="form-floating mb-2">
+            <input type="date" asp-for="EndDate" id="end-date-input" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+            <label asp-for="EndDate" class="control-label"></label>
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" asp-for="IsCurrent" id="current-check" />
+            <label class="form-check-label" asp-for="IsCurrent">
+                Is Current
+            </label>
+        </div>
+        <div class="form-floating mb-2">
+            <input asp-for="Details" id="details-area" style="display:none" />
+            <label asp-for="Details" class="form-floating"></label>
+            <br>            
+            <br>
+            @await Html.PartialAsync("/Views/Shared/_RichTextEditor.cshtml", new TextEditor { Id = detailsEditor, ParentId = "profile-entry-form-" + Model.Id.ToString(), FormField = "details-area" })
+            <span asp-validation-for="Details" class="text-danger"></span>
+        </div>
+        <div id="edit-btns" class="mb-2">
+            <div class="form-group">
+                <button id="submit-btn" type="button" class="btn btn-primary">Save</button>
+                <button id="cancel-btn" type="button" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>*@
+@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        const parent = $('@("#profile-entry-form-" + Model.Id.ToString())');        
+        const currentCheck = $(parent).find("#current-check");
+        const endDateInput = $(parent).find("#end-date-input");
+        const detailsArea = $(parent).find('#details-area');        
+        const detailsEditor = $(parent).find("#@detailsEditor");
+        
+        if ('@(action == FormActions.Create)' == 'True') {
+            $(parent).find('#submit-btn').html('Add');            
+        }
+        
+        updateEndDateVisibility();                
+
+        function updateEndDateVisibility() {
+            if (!$(currentCheck)[0].checked)
+                $(endDateInput).parent().css('display', 'block');
+            else
+                $(endDateInput).parent().css('display', 'none');
+        }
+
+        $(currentCheck).change(function () {
+            updateEndDateVisibility();
+        });
+
+        $(parent).find("#submit-btn").click(function () {
+            const form = $(parent).find("#form");
+            let endpoint = '';
+            let type = '';
+            if ('@(action == FormActions.Create)' == 'True') {
+                endpoint = '@Url.Action("AddProfileEntry")'
+                type = 'POST';
+            }
+            else {
+                endpoint = '@Url.Action("UpdateProfileEntry")'
+                type = 'PUT';
+            }
+            if ($(form).valid()) {
+                var formData = $(form).serialize();
+                $.ajax({
+                    url: endpoint,
+                    type: type,
+                    data: formData,
+                    success: function (response) {                        
+                    },
+                    error: function (request, status, error) {
+                        console.log(request.responseText);
+                    }
+                });
+            }
+        });
+
+        $(parent).find("#cancel-btn").click(function () {            
+        });        
+    
+    });
+</script>

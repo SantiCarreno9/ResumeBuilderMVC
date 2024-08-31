@@ -1,18 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Packaging;
 using ResumeBuilder.Data;
 using ResumeBuilder.Models;
+using ResumeBuilder.Models.Extensions;
 using ResumeBuilder.Models.ViewModels;
 using System.Text.Json;
 
 namespace ResumeBuilder.Controllers
 {
+    [Authorize]
     public class ResumeController : Controller
     {
-        private readonly ResumeBuilderContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public ResumeController(ResumeBuilderContext context)
+        public ResumeController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -20,11 +22,70 @@ namespace ResumeBuilder.Controllers
         // GET: Resume
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Resumes.Where(x => x.AccountId == User.GetId().ToInt()).ToListAsync());
+            var resumes = await _context.Resumes.Where(x => x.UserId.Equals(User.GetId())).ToListAsync();
+            var vmResumes = new List<VMResume>();
+            for (int i = 0; i < resumes.Count; i++)
+                vmResumes.Add(resumes[i].ConvertToViewModel());
+
+            return View(vmResumes);
+        }
+
+        // GET: Resume/Create        
+        public async Task<IActionResult> Create()
+        {
+            string userId = User.GetId();
+            var vmResume = new VMResume();
+
+            vmResume.Id = Guid.NewGuid().ToString();
+            vmResume.ResumeInfo = new();
+            vmResume.PersonalInfo = await _context.PersonalInfo
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.UserId.Equals(userId));
+            vmResume.ProfileEntries = await _context.ProfileEntry
+                .AsNoTracking()
+                .Where(x => x.UserId.Equals(userId))
+                .ToListAsync();
+
+            var resume = vmResume.ConvertToEntity();
+            resume.UserId = userId;
+            _context.Add(resume);
+            await _context.SaveChangesAsync();
+
+            return View("ResumeEditor", vmResume);
+        }
+
+        public async Task<IActionResult> Edit(string id)
+        {
+            var resume = await _context.Resumes.FindAsync(id);
+
+            if (resume == null || !resume.UserId.Equals(User.GetId()))
+                return NotFound();
+
+            return View("ResumeEditor", resume.ConvertToViewModel());
         }
 
         // GET: Resume/Details/5
-        public async Task<IActionResult> Details(int? id, int? templateId)
+        //public async Task<IActionResult> Details(int? id, int? templateId)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var resume = await _context.Resumes
+        //        .AsNoTracking()
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (resume == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    ViewData["Template"] = "/Views/Resume/Templates/Template" + 1 + ".cshtml";
+        //    //var vmResume = ConvertToVMResume(resume);
+        //    return View(vmResume);
+        //}
+
+        public async Task<IActionResult> GetResumePreview(string id, int templateId = 1)
         {
             if (id == null)
             {
@@ -33,76 +94,123 @@ namespace ResumeBuilder.Controllers
 
             var resume = await _context.Resumes
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id.Equals(id));
             if (resume == null)
             {
                 return NotFound();
             }
 
-            ViewData["Template"] = "/Views/Resume/Templates/Template" + 1 + ".cshtml";
-            var vmResume = ConvertToVMResume(resume);
-            return View(vmResume);
+            ViewData["Template"] = "/Views/Resume/Templates/Template" + templateId + ".cshtml";
+            return View(resume.ConvertToViewModel());
         }
 
-        // GET: Resume/Create
-        public async Task<IActionResult> Create(VMResume? resume)
+        #region PERSONAL INFO
+
+        [HttpGet]
+        public async Task<IActionResult> GetPersonalInfoForm(string resumeId, int actionId)
         {
+            var resume = await _context.Resumes.FindAsync(resumeId);
+
             if (resume == null)
-            {
-                resume = new VMResume();
-                resume.PersonalInfo = await _context.PersonalInfo
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.ProfileInfoId == User.GetId().ToInt());
-            }
-            return View(resume);
+                return NotFound();
+
+            var personalInfo = resume.ConvertToViewModel().PersonalInfo;
+            ViewData["Context"] = "Resume";
+            ViewData["Action"] = (FormActions)actionId;
+            ViewData["ResumeId"] = resumeId;
+            if (personalInfo != null)
+                return PartialView("/Views/Shared/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
+            else return PartialView("/Views/Shared/VMPersonalInfo.cshtml", new PersonalInfo());
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdatePersonalInfo(string resumeId, VMPersonalInfo vmPersonalInfo)
+        {
+            var resume = await _context.Resumes.FindAsync(resumeId);
+
+            if (resume == null || !resume.UserId.Equals(User.GetId()) || vmPersonalInfo==null)
+                return BadRequest();
+
+            resume.PersonalInfo = JsonSerializer.Serialize(vmPersonalInfo.ConvertToEntity());
+            await _context.SaveChangesAsync();
+
+            return Ok(PartialView("/Views/Shared/VMPersonalInfo.cshtml", vmPersonalInfo));
+        }
+
+        #endregion
 
         // POST: Resume/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost,ActionName("Create")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePost([Bind("ResumeName,JobTitle,Description,Skills,PersonalInfo,ProfessionalRecord")] VMResume vmResume)
-        {
-            var resume = ConvertToResume(vmResume);
-            resume.AccountId = User.GetId().ToInt();
-            if (ModelState.IsValid)
-            {
-                _context.Add(resume);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(vmResume);
-        }
+        //[HttpPost, ActionName("Create")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> CreatePost([Bind("ResumeName,JobTitle,Description,Skills,PersonalInfo,ProfessionalRecord")] VMResume vmResume)
+        //{
+        //    //var resume = ConvertToResume(vmResume);
+        //    resume.AccountId = User.GetId().ToInt();
+        //    if (ModelState.IsValid)
+        //    {
+        //        _context.Add(resume);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    return View(vmResume);
+        //}
 
         // GET: Resume/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //[ActionName("ResumeEditor")]
+        //public async Task<IActionResult> Edit(int id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var resume = await _context.Resumes.FindAsync(id);
-            if (resume == null)
-            {
-                return NotFound();
-            }
-            return View(resume);
-        }
+        //    var resume = await _context.Resumes.FindAsync(id);
+        //    if (resume == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    //VMResume vmResume = ConvertToVMResume(resume);
+        //    return View("ResumeEditor", vmResume);
+        //}
 
         // POST: Resume/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPut]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ResumeName,Description,Skills,PersonalInfo,ProfessionalRecord")] VMResume vmResume)
+        public async Task<IActionResult> Edit(string id, BasicResumeInfo? resumeInfo, PersonalInfo? personalInfo, List<ProfileEntry>? profileEntries, ProfileEntry? record)
         {
-            //if (id != vmResume.Id)
-            //{
-            //    return NotFound();
-            //}
+            var resume = await _context.Resumes.FindAsync(id);
+            if (resume == null)
+                return NotFound();
 
+            if (!resume.UserId.Equals(User.GetId()))
+                return NotFound();
+
+            var vmResume = resume.ConvertToViewModel();
+            if (resumeInfo != null)
+                vmResume.ResumeInfo = resumeInfo;
+
+            if (personalInfo != null)
+                vmResume.PersonalInfo = personalInfo;
+
+            if (profileEntries != null)
+                vmResume.ProfileEntries = profileEntries;
+
+            if (record != null && vmResume.ProfileEntries != null)
+            {
+                int index = vmResume.ProfileEntries.FindIndex(pr => pr.Id == record.Id);
+                if (index >= 0)
+                    vmResume.ProfileEntries[index] = record;
+            }
+
+            var tempResume = vmResume.ConvertToEntity();
+            resume.ResumeInfo = tempResume.ResumeInfo;
+            resume.PersonalInfo = tempResume.PersonalInfo;
+            resume.ProfileEntries = tempResume.ProfileEntries;
+            await _context.SaveChangesAsync();
             //if (ModelState.IsValid)
             //{
             //    try
@@ -123,11 +231,12 @@ namespace ResumeBuilder.Controllers
             //    }
             //    return RedirectToAction(nameof(Index));
             //}
+            //var vmResume = ConvertToVMResume(resume);
             return View(vmResume);
         }
 
         // GET: Resume/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string? id)
         {
             if (id == null)
             {
@@ -135,7 +244,7 @@ namespace ResumeBuilder.Controllers
             }
 
             var resume = await _context.Resumes
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id.Equals(id));
             if (resume == null)
             {
                 return NotFound();
@@ -147,7 +256,7 @@ namespace ResumeBuilder.Controllers
         // POST: Resume/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var resume = await _context.Resumes.FindAsync(id);
             if (resume != null)
@@ -159,52 +268,5 @@ namespace ResumeBuilder.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private Resume ConvertToResume(VMResume vmResume)
-        {
-            Resume resume = new Resume
-            {
-                Description = vmResume.Description,
-                Skills = vmResume.Skills,
-                ResumeName = vmResume.ResumeName,
-                JobTitle = vmResume.JobTitle,
-            };
-            string personalInfoJSON = JsonSerializer.Serialize(vmResume.PersonalInfo);
-            var educationRecord = vmResume.ProfessionalRecord?.Where(x => x.Category == EntryCategory.Education);
-            string educationRecordJSON = JsonSerializer.Serialize(educationRecord);
-            var experienceRecord = vmResume.ProfessionalRecord?.Where(x => x.Category == EntryCategory.WorkExperience);
-            string experienceRecordJSON = JsonSerializer.Serialize(experienceRecord);
-
-            resume.PersonalInfo = personalInfoJSON;
-            resume.EducationRecord = educationRecordJSON;
-            resume.ExperienceRecord = experienceRecordJSON;
-            return resume;
-        }
-
-        private VMResume ConvertToVMResume(Resume resume)
-        {
-            VMResume vmResume = new VMResume
-            {
-                Description = resume.Description,
-                Skills = resume.Skills,
-                ResumeName = resume.ResumeName,
-                JobTitle = resume.JobTitle,
-            };
-            var personalInfo = JsonSerializer.Deserialize<PersonalInfo>(resume.PersonalInfo);
-            var educationRecord = JsonSerializer.Deserialize<ICollection<ProfileEntry>>(resume.EducationRecord);
-            var experienceRecord = JsonSerializer.Deserialize<ICollection<ProfileEntry>>(resume.ExperienceRecord);
-
-            vmResume.PersonalInfo = personalInfo;
-            vmResume.ProfessionalRecord = new List<ProfileEntry>();
-            if (educationRecord != null)
-                vmResume.ProfessionalRecord.AddRange(educationRecord);
-            if (experienceRecord != null)
-                vmResume.ProfessionalRecord.AddRange(experienceRecord);
-            return vmResume;
-        }
-
-        private bool ResumeExists(int id)
-        {
-            return _context.Resumes.Any(e => e.Id == id);
-        }
     }
 }

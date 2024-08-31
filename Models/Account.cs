@@ -22,8 +22,6 @@ namespace ResumeBuilder.Models
         public string ConfirmPassword { get; set; }
 
         [NotMapped]
-        public bool KeepLoggedIn { get; set; }
-
-        public ProfileInfo? ProfileInfo { get; set; }        
+        public bool KeepLoggedIn { get; set; }              
     }
 }

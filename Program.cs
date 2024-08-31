@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ResumeBuilder.Data;
@@ -14,17 +13,17 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddDbContext<ResumeBuilderContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'ResumeBuilderContext' not found.")));
+//builder.Services.AddDbContext<ResumeBuilderContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'ResumeBuilderContext' not found.")));
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddAuthentication(
-    CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(option =>
-    {
-        option.LoginPath = "/Access/Login";
-        option.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-    });
+//builder.Services.AddAuthentication(
+//    CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(option =>
+//    {
+//        option.LoginPath = "/Home/Login";
+//        option.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+//    });
 
 var app = builder.Build();
 
@@ -41,13 +40,13 @@ else
     app.UseMigrationsEndPoint();
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
 
-    var context = services.GetRequiredService<ResumeBuilderContext>();
-    DbInitializer.Initialize(context);
-}
+//    var context = services.GetRequiredService<ApplicationDbContext>();
+//    DbInitializer.Initialize(context);
+//}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -59,7 +58,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",    
-    pattern: "{controller=Access}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.Run();
