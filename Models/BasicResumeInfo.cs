@@ -3,9 +3,7 @@
 namespace ResumeBuilder.Models
 {
     public class BasicResumeInfo
-    {
-        [Column(TypeName = "nvarchar(50)")]
-        public string? ResumeName { get; set; }
+    {                
         [Column(TypeName = "nvarchar(50)")]
         public string? JobTitle { get; set; }
         [Column(TypeName = "nvarchar(200)")]

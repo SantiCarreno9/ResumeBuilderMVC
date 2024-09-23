@@ -17,14 +17,6 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'ResumeBuilderContext' not found.")));
 builder.Services.AddControllersWithViews();
 
-//builder.Services.AddAuthentication(
-//    CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(option =>
-//    {
-//        option.LoginPath = "/Home/Login";
-//        option.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-//    });
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,14 +31,6 @@ else
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
 }
-
-//using (var scope = app.Services.CreateScope())
-//{
-//    var services = scope.ServiceProvider;
-
-//    var context = services.GetRequiredService<ApplicationDbContext>();
-//    DbInitializer.Initialize(context);
-//}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

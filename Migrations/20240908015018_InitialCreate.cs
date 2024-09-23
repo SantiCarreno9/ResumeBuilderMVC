@@ -55,8 +55,8 @@ namespace ResumeBuilder.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
                     PhoneNumber = table.Column<string>(type: "varchar(20)", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(100)", nullable: true),
@@ -96,6 +96,7 @@ namespace ResumeBuilder.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     ResumeInfo = table.Column<string>(type: "nvarchar(1000)", nullable: true),
                     PersonalInfo = table.Column<string>(type: "nvarchar(2000)", nullable: true),
                     ProfileEntries = table.Column<string>(type: "nvarchar(4000)", nullable: true)

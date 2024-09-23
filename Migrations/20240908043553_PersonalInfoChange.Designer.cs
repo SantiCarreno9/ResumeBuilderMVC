@@ -12,8 +12,8 @@ using ResumeBuilder.Data;
 namespace ResumeBuilder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240829043305_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240908043553_PersonalInfoChange")]
+    partial class PersonalInfoChange
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -232,37 +232,26 @@ namespace ResumeBuilder.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AdditionalContactInfo")
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(320)
                         .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("GitHubAccount")
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("LinkedInURL")
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("varchar(20)");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("WebsiteURL")
-                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("UserId");
 
@@ -313,6 +302,10 @@ namespace ResumeBuilder.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("PersonalInfo")
                         .HasColumnType("nvarchar(2000)");

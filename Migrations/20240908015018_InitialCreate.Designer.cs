@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResumeBuilder.Data;
 
@@ -11,9 +12,11 @@ using ResumeBuilder.Data;
 namespace ResumeBuilder.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240908015018_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,11 +232,8 @@ namespace ResumeBuilder.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AdditionalContactInfo")
-                        .HasColumnType("nvarchar(4000)");
-
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(320)
@@ -243,12 +243,24 @@ namespace ResumeBuilder.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("GitHubAccount")
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("LastName")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("LinkedInURL")
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("varchar(20)");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("WebsiteURL")
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("UserId");
 

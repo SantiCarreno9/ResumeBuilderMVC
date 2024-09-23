@@ -8,6 +8,8 @@ namespace ResumeBuilder.Models
         [Key]
         public string Id { get; set; }
         public string UserId { get; set; }
+        [Column(TypeName = "nvarchar(50)")]
+        public string Name { get; set; } = "Resume";
         [Column(TypeName = "nvarchar(1000)")]
         public string? ResumeInfo { get; set; }
         [Column(TypeName = "nvarchar(2000)")]

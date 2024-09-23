@@ -13,11 +13,8 @@ namespace ResumeBuilder.Models.Extensions
                 LastName = vmPersonalInfo.LastName,
                 Address = vmPersonalInfo.Address,
                 Email = vmPersonalInfo.Email,
-                PostalCode = vmPersonalInfo.PostalCode,
                 PhoneNumber = vmPersonalInfo.PhoneNumber,
-                LinkedInURL = vmPersonalInfo.LinkedInURL,
-                GitHubAccount = vmPersonalInfo.GitHubAccount,
-                WebsiteURL = vmPersonalInfo.WebsiteURL
+                AdditionalContactInfo = vmPersonalInfo.AdditionalContactInfo
             };
         }
 
@@ -29,15 +26,12 @@ namespace ResumeBuilder.Models.Extensions
                 LastName = personalInfo.LastName,
                 Address = personalInfo.Address,
                 Email = personalInfo.Email,
-                PostalCode = personalInfo.PostalCode,
                 PhoneNumber = personalInfo.PhoneNumber,
-                LinkedInURL = personalInfo.LinkedInURL,
-                GitHubAccount = personalInfo.GitHubAccount,
-                WebsiteURL = personalInfo.WebsiteURL
+                AdditionalContactInfo = personalInfo.AdditionalContactInfo
             };
         }
 
-        public static ProfileEntry ConvertToEntity(this VMProfileEntry vMProfileEntry) 
+        public static ProfileEntry ConvertToEntity(this VMProfileEntry vMProfileEntry)
         {
             return new ProfileEntry
             {
@@ -81,7 +75,7 @@ namespace ResumeBuilder.Models.Extensions
         }
 
         public static VMResume ConvertToViewModel(this Resume resume)
-        {            
+        {
             return new VMResume
             {
                 Id = resume.Id,
@@ -91,47 +85,5 @@ namespace ResumeBuilder.Models.Extensions
             };
         }
 
-        //private Resume ConvertToResume(VMResume vmResume)
-        //{
-        //    Resume resume = new Resume
-        //    {
-        //        Description = vmResume.Description,
-        //        Skills = vmResume.Skills,
-        //        ResumeName = vmResume.ResumeName,
-        //        JobTitle = vmResume.JobTitle,
-        //    };
-        //    string personalInfoJSON = JsonSerializer.Serialize(vmResume.PersonalInfo);
-        //    var educationRecord = vmResume.ProfessionalRecord?.Where(x => x.Category == EntryCategory.Education);
-        //    string educationRecordJSON = JsonSerializer.Serialize(educationRecord);
-        //    var experienceRecord = vmResume.ProfessionalRecord?.Where(x => x.Category == EntryCategory.WorkExperience);
-        //    string experienceRecordJSON = JsonSerializer.Serialize(experienceRecord);
-
-        //    resume.PersonalInfo = personalInfoJSON;
-        //    resume.EducationRecord = educationRecordJSON;
-        //    resume.ExperienceRecord = experienceRecordJSON;
-        //    return resume;
-        //}
-
-        //private VMResume ConvertToVMResume(Resume resume)
-        //{
-        //    VMResume vmResume = new VMResume
-        //    {
-        //        Description = resume.Description,
-        //        Skills = resume.Skills,
-        //        ResumeName = resume.ResumeName,
-        //        JobTitle = resume.JobTitle,
-        //    };
-        //    var personalInfo = JsonSerializer.Deserialize<PersonalInfo>(resume.PersonalInfo);
-        //    var educationRecord = JsonSerializer.Deserialize<ICollection<ProfileEntry>>(resume.EducationRecord);
-        //    var experienceRecord = JsonSerializer.Deserialize<ICollection<ProfileEntry>>(resume.ExperienceRecord);
-
-        //    vmResume.PersonalInfo = personalInfo;
-        //    vmResume.ProfessionalRecord = new List<ProfileEntry>();
-        //    if (educationRecord != null)
-        //        vmResume.ProfessionalRecord.AddRange(educationRecord);
-        //    if (experienceRecord != null)
-        //        vmResume.ProfessionalRecord.AddRange(experienceRecord);
-        //    return vmResume;
-        //}
     }
 }

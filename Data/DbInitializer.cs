@@ -41,11 +41,11 @@ namespace ResumeBuilder.Data
                     LastName="Carreño",
                     Email="santiago.carreno05@gmail.com",
                     PhoneNumber="437-661-2248",
-                    Address="775 Midland Avenue",
-                    PostalCode="M1K 4E5",
-                    LinkedInURL="https://www.linkedin.com/in/santiago-felipe-carreno-pardo/",
-                    WebsiteURL="https://santicarreno9.github.io/PortfolioWebsite/",
-                    GitHubAccount="https://github.com/SantiCarreno9"
+                    Address="775 Midland Avenue, Scarborough, ON M1K 4E5",   
+                    //AdditionalContactInfo =
+                    //LinkedInURL="https://www.linkedin.com/in/santiago-felipe-carreno-pardo/",
+                    //WebsiteURL="https://santicarreno9.github.io/PortfolioWebsite/",
+                    //GitHubAccount="https://github.com/SantiCarreno9"
                 }
             };
 

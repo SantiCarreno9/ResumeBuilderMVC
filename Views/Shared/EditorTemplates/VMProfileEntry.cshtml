@@ -92,11 +92,11 @@
             let endpoint = '';
             let type = '';
             if ('@(action == FormActions.Create)' == 'True') {
-                endpoint = '@Url.Action("AddProfileEntry")'
+                endpoint = '@Url.Action("ProfileEntry")'
                 type = 'POST';
             }
             else {
-                endpoint = '@Url.Action("UpdateProfileEntry")'
+                endpoint = '@Url.Action("ProfileEntry")'
                 type = 'PUT';
             }
             if ($(form).valid()) {

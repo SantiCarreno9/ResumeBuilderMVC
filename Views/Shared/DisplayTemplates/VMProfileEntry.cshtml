@@ -22,69 +22,6 @@
     </dl>
 </div>
 
-@* <div id="profile-entry-form-@(Model.Id)" class="profile-entry-container d-flex flex-row">
-    <div style="flex:1">
-        <form asp-action="Create" id="form">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="Category" />
-            <div class="form-floating mb-2">
-                <input asp-for="Title" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="Title" class="control-label"></label>
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-2">
-                <input asp-for="Organization" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="Organization" class="control-label"></label>
-                <span asp-validation-for="Organization" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-2">
-                <input asp-for="Location" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="Location" class="control-label"></label>
-                <span asp-validation-for="Location" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-2">
-                <input type="date" asp-for="StartDate" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="StartDate" class="control-label"></label>
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-2">
-                <input type="date" asp-for="EndDate" id="end-date-input" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="EndDate" class="control-label"></label>
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" asp-for="IsCurrent" id="current-check" />
-                <label class="form-check-label" asp-for="IsCurrent">
-                     Is Current
-                </label>
-            </div>
-            <div class="form-floating mb-2">
-                <input asp-for="Details" id="details-area" style="display:none" />
-                <label asp-for="Details" class="form-floating"></label>
-                <br>
-                <div id="details-text" class="p-3">@Html.Raw(Model.Details)</div>
-                <br>
-                @await Html.PartialAsync("/Views/Shared/_RichTextEditor.cshtml", new TextEditor { Id = detailsEditor, ParentId = "profile-entry-form-" + Model.Id.ToString(), FormField = "details-area" })
-                <span asp-validation-for="Details" class="text-danger"></span>
-            </div>
-            <div id="edit-btns" class="mb-2" style="display:none">
-                <div class="form-group">
-                    <button id="submit-btn" type="button" class="btn btn-primary">Save</button>
-                    <button id="cancel-btn" type="button" class="btn btn-secondary">Cancel</button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="text-end">
-        <button type="button" class="btn-icon" id="edit-btn" style="font-size:1.5rem;"><i class="fas fa-edit"></i></button>
-        <button type="button" class="btn-icon" id="delete-btn" style="font-size:1.5rem;"><i class="fa-solid fa-trash-can"></i></button>
-    </div>
-</div> *@
-
-
-@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>*@
-@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -92,7 +29,7 @@
 
         $(parent).find("#edit-btn").click(function () {
             $.ajax({
-                url: '@Url.Action("GetProfileEntryForm")',
+                url: '@Url.Action("ProfileEntryForm")',
                 type: 'GET',
                 data: { id: '@Model.Id', actionId:'@((int)FormActions.Edit)' },
                 success: function (response) {
@@ -106,7 +43,7 @@
 
         $(parent).find("#delete-btn").click(function () {
             $.ajax({
-                url: '@Url.Action("DeleteProfileEntry")',
+                url: '@Url.Action("ProfileEntry")',
                 type: 'DELETE',
                 data: { id: '@Model.Id' },
                 success: function (response) {

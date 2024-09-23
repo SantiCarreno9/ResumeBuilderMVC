@@ -26,9 +26,9 @@
             {
                 <tr>
                     <td>
-                        @if (item.ResumeInfo != null && item.ResumeInfo.ResumeName != null)
+                        @if (item.ResumeInfo != null && item.Name != null)
                         {
-                            @Html.DisplayFor(modelItem => item.ResumeInfo.ResumeName)
+                            @Html.DisplayFor(modelItem => item.Name)
                         }
                         else
                         {

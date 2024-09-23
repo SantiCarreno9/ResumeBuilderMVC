@@ -35,33 +35,57 @@
                         @Model?.PersonalInfo?.Email
                     </a>
                 </p>
+                @if (ViewData["AdditionalContactInfo"] != null)
+                {
+                    var contacts = (List<AdditionalContactResume>)ViewData["AdditionalContactInfo"];
+                    if (contacts != null)
+                    {
+                        @foreach (var item in contacts)
+                        {
+                            <p>
+                                @if (item.IsHyperlink)
+                                {
+                                    <a href="@item.Value" target="_blank" rel="noopener noreferrer">
+                                        @Html.Raw(@item.GetIcon())
+                                        @item.DisplayName
+                                    </a>
+                                }
+                                else
+                                {
+                                    @Html.Raw(@item.GetIcon())
+                                    @item.DisplayName
+                                }
+                            </p>
+                        }
+                    }
+                }
                 <!-- LINKEDIN -->
-                <p>
-                    <a href="@Model?.PersonalInfo?.LinkedInURL" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-linkedin" aria-hidden="true"></i>
-                        @Model?.PersonalInfo?.FirstName
-                    </a>
+                @*  <p>
+                <a href="@Model?.PersonalInfo?.LinkedInURL" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-linkedin" aria-hidden="true"></i>
+                @Model?.PersonalInfo?.FirstName
+                </a>
                 </p>
                 <!-- GITHUB -->
                 @if (Model?.PersonalInfo?.GitHubAccount != null)
                 {
-                    <p>
-                        <a href="https://github.com/@Model?.PersonalInfo?.GitHubAccount" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-github" aria-hidden="true"></i>
-                            @Model?.PersonalInfo?.GitHubAccount
-                        </a>
-                    </p>
+                <p>
+                <a href="https://github.com/@Model?.PersonalInfo?.GitHubAccount" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-github" aria-hidden="true"></i>
+                @Model?.PersonalInfo?.GitHubAccount
+                </a>
+                </p>
                 }
                 <!-- PORTFOLIO -->
                 @if (@Model?.PersonalInfo?.WebsiteURL != null)
                 {
-                    <p>
-                        <a href="@Model?.PersonalInfo.WebsiteURL" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-dev" aria-hidden="true"></i>
-                            Website
-                        </a>
-                    </p>
-                }
+                <p>
+                <a href="@Model?.PersonalInfo.WebsiteURL" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-dev" aria-hidden="true"></i>
+                Website
+                </a>
+                </p>
+                } *@
 
             </section>
             <section>

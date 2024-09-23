@@ -10,48 +10,43 @@
         <form asp-action="Create" id="form">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-floating mb-2">
-                <input asp-for="FirstName" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+                <input asp-for="FirstName" class="form-control editable-field" id="first-name-input" />
                 <label asp-for="FirstName" class="control-label"></label>
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-floating mb-2">
-                <input asp-for="LastName" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+                <input asp-for="LastName" class="form-control editable-field" id="last-name-input" />
                 <label asp-for="LastName" class="control-label"></label>
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
             <div class="form-floating mb-2">
-                <input asp-for="Email" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+                <input asp-for="Email" class="form-control editable-field" id="email-input" />
                 <label asp-for="Email" class="control-label"></label>
             </div>
             <div class="form-floating mb-2">
-                <input asp-for="PhoneNumber" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+                <input asp-for="PhoneNumber" class="form-control editable-field" id="phone-input" />
                 <label asp-for="PhoneNumber" class="control-label"></label>
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
             <div class="form-floating mb-2">
-                <input asp-for="Address" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
+                <input asp-for="Address" class="form-control editable-field" id="address-input" />
                 <label asp-for="Address" class="control-label"></label>
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-floating mb-2">
-                <input asp-for="PostalCode" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="PostalCode" class="control-label"></label>
-                <span asp-validation-for="PostalCode" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-2">
-                <input asp-for="LinkedInURL" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="LinkedInURL" class="control-label"></label>
-                <span asp-validation-for="LinkedInURL" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-2">
-                <input asp-for="WebsiteURL" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="WebsiteURL" class="control-label"></label>
-                <span asp-validation-for="WebsiteURL" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-2">
-                <input asp-for="GitHubAccount" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
-                <label asp-for="GitHubAccount" class="control-label"></label>
-                <span asp-validation-for="GitHubAccount" class="text-danger"></span>
+            <div class="px-2">
+                <h5>Additional Contact Info</h5>
+                <ul class="list-group" id="additional-contacts-list">
+                    <li class="row mb-2">
+                        <select name="contacts" id="contact-title-select" class="form-select mx-2 w-50">
+                            <option value=""></option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Website">Website</option>
+                            <option value="GitHub">GitHub</option>
+                            <option value="Portfolio">Portfolio</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </li>
+                </ul>
             </div>
             <div id="user-create-btns" style="display:none">
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -69,9 +64,28 @@
     </div>
 </div>
 
+<div id="additional-contacts-template" style="display:none">
+    <li class="row mb-2 align-items-center d-flex flex-row">
+        <input type="text" class="form-control-plaintext mx-2" readonly />
+        <input type="text" class="form-control editable-field mx-2" style="flex:1" />
+        <div class="form-floating mb-2 resume-only" style="display:none">
+            <input type="text" class="form-control editable-field" id="display-name" />
+            <label for="display-name" class="control-label">Display Name</label>
+        </div>
+        <button type="button" class="btn-close mx-2" onclick="deleteAdditionalContact(this);"></button>
+    </li>
+</div>
+
+<style>
+    .editable-field {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+    }
+</style>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
+
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -79,13 +93,77 @@
         const inputs = $(parent).find('input');
         const editBtns = $(parent).find('#edit-btns');
 
+        // ---------- Additional Contacts Logic ----------
+        const additionalContactsList = $('#additional-contacts-list');
+        const additionalContactTemplate = $("#additional-contacts-template")[0].firstElementChild;
+        const contacTitleSelect = $("#contact-title-select");
+
         let isEditing = false;
+
+        loadContacts();
+
+        //Initialization
         if ('@(action == FormActions.Edit)' == 'True')
             isEditing = true;
         else if ('@(action == FormActions.Create)' == 'True')
             $(parent).find('#cancel-btn').css('display', 'none');
 
-        updateFormState();
+        $(parent).find("#edit-btn").click(function () {
+            isEditing = !isEditing;
+            updateFormState();
+        });
+
+        $(parent).find("#submit-btn").click(function () {
+            const form = $(parent).find("#form");
+            let endpoint = '@Url.Action("PersonalInfo")';
+            if ('@context' == 'Resume') {
+                endpoint = endpoint.concat("?resumeId=@id");
+            }
+            if ($(form).valid()) {
+                var formData = getFormData($(form));
+                formData['AdditionalContactInfo'] = getAdditionalContactsJSON();
+                $.ajax({
+                    url: endpoint,
+                    type: "PUT",
+                    data: formData,
+                    success: function (response) {
+                        isEditing = false;
+                        updateFormState();
+                    },
+                    error: function (request, status, error) {
+                        console.log(request.responseText);
+                    }
+                });
+            }
+        });
+
+        $(parent).find("#cancel-btn").click(function () {
+            $.ajax({
+                url: '@Url.Action("PersonalInfo")',
+                type: "GET",
+                dataType: "json",
+                success: function (response) {
+                    $('#first-name-input').val(response.firstName);
+                    $('#last-name-input').val(response.lastName);
+                    $('#email-input').val(response.email);
+                    $('#phone-input').val(response.phoneNumber);
+                    $('#address-input').val(response.address);
+                    $('#postal-code-input').val(response.postalCode);
+                    $('#linkedin-input').val(response.linkedInURL);
+                    $('#website-input').val(response.websiteURL);
+                    $('#github-input').val(response.gitHubAccount);
+                    isEditing = false;
+                    updateFormState();
+                },
+                error: function (request, status, error) {
+                    console.log(request.responseText);
+                }
+            });
+        });
+
+        $(contacTitleSelect).on('change', function () {
+            setContactFromDropdown(contacTitleSelect);
+        });        
 
         function updateFormState() {
             for (let i = 0; i < inputs.length; i++) {
@@ -101,40 +179,97 @@
                     $(editBtns).css('display', 'none');
                 }
             }
+            // let additionalContactsList = additionalContactsList.children;
+            // for (let i = 0; i < additionalContactsList.length - 1; i++) {
+            //     additionalContactsList[i].lastChild.style.display = !isEditing ? 'none' : 'block';
+            // }
         }
 
-        $(parent).find("#edit-btn").click(function () {
-            isEditing = !isEditing;
-            updateFormState();
-        });
+        function getFormData($form) {
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
 
-        $(parent).find("#submit-btn").click(function () {
-            const form = $(parent).find("#form");
-            let endpoint = '@Url.Action("UpdatePersonalInfo")';
-            if ('@context' == 'Resume') {
-                endpoint = endpoint.concat("?resumeId=@id");
-                console.log(endpoint);
-            }
-            if ($(form).valid()) {
-                var formData = $(form).serialize();
-                $.ajax({
-                    url: endpoint,
-                    type: "PUT",
-                    data: formData,
-                    success: function (response) {
-                        isEditing = false;
-                        updateFormState();
-                    },
-                    error: function (request, status, error) {
-                        console.log(request.responseText);
-                    }
-                });                
-            }
-        });
+            $.map(unindexed_array, function (n, i) {
+                indexed_array[n['name']] = n['value'];
+            });
 
-        $(parent).find("#cancel-btn").click(function () {
-            isEditing = false;
+            return indexed_array;
+        }
+
+        // ---------- Additional Contacts Logic ----------
+
+        function loadContacts() {            
+            let contacts = JSON.parse('@Html.Raw(Model.AdditionalContactInfo)');
+            if(contacts!=null){
+                for (let i = 0; i < contacts.length; i++) {                    
+                    addAdditionalContact(contacts[i].name, contacts[i].value);
+                }
+            }            
             updateFormState();
-        });
+        }
+
+        function getAdditionalContactsJSON() {
+            var myObject = [];
+            let index = 0;
+            for (const child of additionalContactsList.children) {
+                let nameField = $(child).children().eq(0)[0];
+                let valueField = $(child).children().eq(1)[0];
+                myObject[index] = { name: nameField.value, value: valueField.value };
+                index++;
+                if (additionalContactsList.childElementCount - 1 == index)
+                    break;
+            }
+            return JSON.stringify(myObject);
+        }
+
+        function updateContactListOptions(name = null, added = false) {
+            console.log('updateContactListOptions()');
+            if (contacTitleSelect == null)
+                return;
+            console.log(contacTitleSelect);
+            console.log(contacTitleSelect.options);
+            for (let i = 0; i < contacTitleSelect.options.length; i++) {
+                if (name == "Other")
+                    break;
+                if (contacTitleSelect.options[i].value == name)
+                    contacTitleSelect.options[i].style.display = added ? "none" : "block";
+            }
+            contacTitleSelect.value = "";
+        }
+
+        function setContactFromDropdown(select) {
+            const value = select.value;
+            addAdditionalContact(value);
+        }
+
+        function addAdditionalContact(name = null, value = null) {
+            console.log('Name: ' + name + ' Value: ' + value);
+            let newContact = additionalContactTemplate.cloneNode(true);
+            let dropdown = $(contacTitleSelect).parent();
+            $(newContact).insertBefore($(dropdown));
+            // additionalContactsList.insertBefore(newContact, contacTitleSelect);
+            if (name != null) {
+                let nameField = $(newContact).children().eq(0)[0];
+                nameField.value = name;
+                if (name == "Other") {
+                    nameField.disabled = false;
+                }
+            }
+            if (value != null) {
+                $(newContact).children().eq(1)[0].value = value;
+            }
+            $(newContact).children().last().click(function () {
+                deleteAdditionalContact(this)
+            })
+            // updateContactListOptions(name, true);
+        }
+
+        function deleteAdditionalContact(button) {
+            const option = $(button).parent().children().eq(0)[0].value;
+            // updateContactListOptions(option, false);
+            button.parentElement.remove();
+        }
     });
+
+
 </script>
