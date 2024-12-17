@@ -1,8 +1,20 @@
-﻿.resume-editor-container {
+﻿.main-container{
+    width:100%;
+    display:flex;
+    /*flex-wrap:nowrap;*/
+}
+
+#customAccordion{
+    width:100%;
+}
+
+.resume-editor-container {
     display: flex;
-    flex-direction: row;
-    height: 100vh;
-    overflow: hidden;
+    flex:1;
+    width:100%;
+    flex-direction: column;
+    /*height: 100vh;*/
+    /*overflow: hidden;*/
 }
 
     .resume-editor-container .resume {
@@ -26,4 +38,26 @@
 .editable-content-cont{
     display:flex;
     flex-direction:row;
+}
+
+#resume-preview-container{
+    flex:1;
+    /*max-height:200px;
+    width:50px;
+    overflow:hidden*/
+}
+
+@media (max-width: 800px) {
+    .main-container {        
+        flex-wrap: wrap;
+    }
+    .resume-editor-container {
+        min-width: 100%;
+    }
+    .resume-editor {
+        min-width: 100%;
+    }
+    .media-container {
+        min-width: 100%;
+    }
 }

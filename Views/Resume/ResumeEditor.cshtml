@@ -5,7 +5,7 @@
     // Layout = "~/Views/Shared/_CustomLayout.cshtml";
 }
 
-<div class="container">    
+<div class="container w-100">
     <div class="editable-content-cont">
         <h1 contenteditable="true" id="resume-name-input">
             @(Model.Name ?? "Untitled")
@@ -13,59 +13,58 @@
         <i class="fas fa-edit"></i>
     </div>
     <hr />
-    <div class="w-100" style="flex-wrap:nowrap">
-        <div class="w-100">
-            <div class="accordion w-100 d-flex" id="customAccordion">
-                <div class="resume-editor-container">
-                    <div class="resume-editor">
-                        <div class="editor">                            
-                            <div class="accordion-item">
-                                <div class="accordion-header">
-                                    <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
-                                            onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-resume" aria-expanded="false" aria-controls="collapse-resume" )">
-                                        Resume Info
-                                    </button>
-                                </div>
-                                <div id="collapse-resume" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
-                                    <div id="resume-info-placeholder" class="accordion-body">                                        
-                                    </div>
-                                </div>
+    <div class="main-container">
+        <div class="resume-editor-container">
+            <div class="accordion" id="customAccordion">
+                <div class="editor">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
+                                    onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-resume" aria-expanded="false" aria-controls="collapse-resume" )">
+                                Resume Info
+                            </button>
+                        </div>
+                        <div id="collapse-resume" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
+                            <div id="resume-info-placeholder" class="accordion-body">
                             </div>
-                            <div class="accordion-item">
-                                <div class="accordion-header">
-                                    <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
-                                            onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-personal" aria-expanded="false" aria-controls="collapse-personal" )">
-                                        Personal Info
-                                    </button>
-                                </div>
-                                <div id="collapse-personal" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
-                                    <div id="personal-info-placeholder" class="accordion-body">                                        
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
+                                    onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-personal" aria-expanded="false" aria-controls="collapse-personal" )">
+                                Personal Info
+                            </button>
+                        </div>
+                        <div id="collapse-personal" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
+                            <div id="personal-info-placeholder" class="accordion-body">
                             </div>
-                            <div class="accordion-item">
-                                <div class="accordion-header">
-                                    <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
-                                            onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-education" aria-expanded="false" aria-controls="collapse-education" )">
-                                        Education
-                                    </button>
-                                </div>
-                                <div id="collapse-education" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
-                                    <div id="education-entries-placeholder" class="accordion-body">
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
+                                    onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-education" aria-expanded="false" aria-controls="collapse-education" )">
+                                Education
+                            </button>
+                        </div>
+                        <div id="collapse-education" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
+                            <button id="load-education-btn" type="button" onclick:preventDefault">
+                                Load Profile Entries
+                            </button>
+                            <div id="education-entries-placeholder" class="accordion-body">
                             </div>
-                            <div class="accordion-item">
-                                <div class="accordion-header">
-                                    <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
-                                            onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-professional" aria-expanded="false" aria-controls="collapse-professional" )">
-                                        Professional Experience
-                                    </button>
-                                </div>
-                                <div id="collapse-professional" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
-                                    <div id="professional-entries-placeholder" class="accordion-body">                                        
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
+                                    onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-professional" aria-expanded="false" aria-controls="collapse-professional" )">
+                                Professional Experience
+                            </button>
+                        </div>
+                        <div id="collapse-professional" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
+                            <div id="professional-entries-placeholder" class="accordion-body">
                             </div>
                         </div>
                     </div>
@@ -75,8 +74,8 @@
                 <input type="button" id="resume-save-button" value="Save" class="btn btn-primary" />
                 <input type="button" id="cancel-save-button" value="Cancel" class="btn btn-secondary" />
             </div>
-        </div>        
-        <div class="container" id="resume-preview-container">
+        </div>
+        <div id="resume-preview-container">
         </div>
     </div>
 </div>
@@ -104,7 +103,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
-        
+
         $(document).ready(function () {
             let templateId = 1;
             let originalResumeCopy = {};
@@ -143,18 +142,18 @@
             // Resume Name
 
             $("#resume-save-button").click(function () {
-                const newName = $('#resume-name-input').val();
-                $.ajax({
-                    url: '@Url.Action("ResumeName")?resumeId=@Model.Id',
-                    type: "PUT",
-                    data: { resumeId: '@Model.Id', newName: newName },
-                    success: function (response) {
-                        window.location.replace('@Url.Action("Index")');
-                    },
-                    error: function (request, status, error) {
-                        console.log(request.responseText);
-                    }
-                });
+                // const newName = $('#resume-name-input').val();
+                // $.ajax({
+                //     url: '@Url.Action("ResumeName")?resumeId=@Model.Id',
+                //     type: "PUT",
+                //     data: { resumeId: '@Model.Id', newName: newName },
+                //     success: function (response) {
+                //         window.location.replace('@Url.Action("Index")');
+                //     },
+                //     error: function (request, status, error) {
+                //         console.log(request.responseText);
+                //     }
+                // });
             })
 
             // Resume Info
@@ -199,8 +198,23 @@
 
             // Profile Entries
 
-            loadProfileEntries(@((int)EntryCategory.Education));
-            loadProfileEntries(@((int)EntryCategory.WorkExperience));
+            $("#load-education-btn").click(function () {
+                $.ajax({
+                    url: '@Url.Action("ResumeInfo")?resumeId=@Model.Id',
+                    type: "PUT",
+                    data: originalResumeCopy,
+                    dataType: "json",
+                    success: function (response) {
+                        window.location.replace('@Url.Action("Index")');
+                    },
+                    error: function (request, status, error) {
+                        console.log(request.responseText);
+                    }
+                });
+            })
+
+            // loadProfileEntries(@((int)EntryCategory.Education));
+            // loadProfileEntries(@((int)EntryCategory.WorkExperience));
 
             $("#add-education").click(function () {
                 openEntryForm(@((int)EntryCategory.Education));
@@ -212,28 +226,54 @@
 
             function loadProfileEntries(categoryId) {
                 const actionId = @((int)FormActions.None);
-                // $.ajax({
-                //     type: 'GET',
-                //     url: '@Url.Action("GetProfileEntries")',
-                //     data: { category: categoryId, actionId: actionId },
-                //     success: function (result) {
-                //         let container;
-                //         if (categoryId == @((int)(EntryCategory.Education)))
-                //             container = "#education-list";
-                //         else container = "#experience-list";
-                //         $(container).empty();
-                //         $(container).append(result);
-                //         const containerJs = $(container)[0];
-                //         let entries = containerJs.getElementsByClassName('profile-entry-container');
-                //         for (let i = 0; i < entries.length; i++) {
-                //             entries[i].classList.add('card');
-                //             entries[i].classList.add('mb-2');
-                //         }
-                //     },
-                //     error: function () {
-                //         alert("Error trying to retrieve Entries");
-                //     }
-                // })
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("ProfileEntriesView")',
+                    data: { category: categoryId, actionId: actionId },
+                    success: function (result) {
+                        let container;
+                        if (categoryId == @((int)(EntryCategory.Education)))
+                            container = "#education-list";
+                        else container = "#experience-list";
+                        $(container).empty();
+                        $(container).append(result);
+                        const containerJs = $(container)[0];
+                        let entries = containerJs.getElementsByClassName('profile-entry-container');
+                        for (let i = 0; i < entries.length; i++) {
+                            entries[i].classList.add('card');
+                            entries[i].classList.add('mb-2');
+                        }
+                    },
+                    error: function () {
+                        alert("Error trying to retrieve Entries");
+                    }
+                })
+            }
+
+            function loadProfileEntries(categoryId) {
+                const actionId = @((int)FormActions.None);
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetProfileEntries")',
+                    data: { category: categoryId},
+                    success: function (result) {
+                        // let container;
+                        // if (categoryId == @((int)(EntryCategory.Education)))
+                        //     container = "#education-list";
+                        // else container = "#experience-list";
+                        // $(container).empty();
+                        // $(container).append(result);
+                        // const containerJs = $(container)[0];
+                        // let entries = containerJs.getElementsByClassName('profile-entry-container');
+                        // for (let i = 0; i < entries.length; i++) {
+                        //     entries[i].classList.add('card');
+                        //     entries[i].classList.add('mb-2');
+                        // }
+                    },
+                    error: function () {
+                        alert("Error trying to retrieve Entries");
+                    }
+                })
             }
 
             function openEntryForm(categoryId) {

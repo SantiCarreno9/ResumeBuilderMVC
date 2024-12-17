@@ -6,6 +6,7 @@ using ResumeBuilder.Data;
 using ResumeBuilder.Models;
 using ResumeBuilder.Models.Extensions;
 using ResumeBuilder.Models.ViewModels;
+using ResumeBuilder.Repositories.Contracts;
 using System.Text.Json;
 
 namespace ResumeBuilder.Controllers
@@ -13,20 +14,25 @@ namespace ResumeBuilder.Controllers
     [Authorize]
     public class ResumeController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IResumeRepository _resumeRepository;
+        private readonly IUserRepository _userRepository;
 
-        public ResumeController(ApplicationDbContext context)
+        public ResumeController(IResumeRepository repository, IUserRepository userRepository)
         {
-            _context = context;
+            _resumeRepository = repository;
+            _userRepository = userRepository;
         }
 
         // GET: Resume
         public async Task<IActionResult> Index()
         {
-            var resumes = await _context.Resumes.Where(x => x.UserId.Equals(User.GetId())).ToListAsync();
+            var resumes = await _resumeRepository.GetResumes(User.GetId());
             var vmResumes = new List<VMResume>();
-            for (int i = 0; i < resumes.Count; i++)
-                vmResumes.Add(resumes[i].ConvertToViewModel());
+            if (resumes != null)
+            {
+                foreach (var resume in resumes)
+                    vmResumes.Add(resume.ConvertToViewModel());
+            }
 
             return View(vmResumes);
         }
@@ -39,27 +45,24 @@ namespace ResumeBuilder.Controllers
 
             vmResume.Id = Guid.NewGuid().ToString();
             vmResume.ResumeInfo = new();
-            vmResume.PersonalInfo = await _context.PersonalInfo
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.UserId.Equals(userId));
-            vmResume.ProfileEntries = await _context.ProfileEntry
-                .AsNoTracking()
-                .Where(x => x.UserId.Equals(userId))
-                .ToListAsync();
+            vmResume.PersonalInfo = await _userRepository.GetPersonalInfo(User.GetId());
+            //vmResume.ProfileEntries = await _context.ProfileEntry
+            //    .AsNoTracking()
+            //    .Where(x => x.UserId.Equals(userId))
+            //    .ToListAsync();
 
             var resume = vmResume.ConvertToEntity();
             resume.UserId = userId;
-            _context.Add(resume);
-            await _context.SaveChangesAsync();
+            await _resumeRepository.AddResume(resume);
 
             return View("ResumeEditor", vmResume);
         }
 
         public async Task<IActionResult> Edit(string id)
         {
-            var resume = await _context.Resumes.FindAsync(id);
+            var resume = await _resumeRepository.GetResume(User.GetId(), id);
 
-            if (resume == null || !resume.UserId.Equals(User.GetId()))
+            if (resume == null)
                 return NotFound();
 
             return View("ResumeEditor", resume.ConvertToViewModel());
@@ -74,9 +77,7 @@ namespace ResumeBuilder.Controllers
                 return NotFound();
             }
 
-            var resume = await _context.Resumes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id.Equals(resumeId));
+            var resume = await _resumeRepository.GetResume(User.GetId(), resumeId);
             if (resume == null)
             {
                 return NotFound();
@@ -86,7 +87,7 @@ namespace ResumeBuilder.Controllers
 
             ViewData["Template"] = "/Views/Resume/Templates/Template" + templateId + ".cshtml";
             IEnumerable<AdditionalContactResume>? additionalContactInfo = null;
-            if (vmResume.PersonalInfo != null && vmResume.PersonalInfo.AdditionalContactInfo != null)            
+            if (vmResume.PersonalInfo != null && vmResume.PersonalInfo.AdditionalContactInfo != null)
                 additionalContactInfo = JsonConvert.DeserializeObject<IEnumerable<AdditionalContactResume>>(vmResume.PersonalInfo.AdditionalContactInfo);
 
             ViewData["AdditionalContactInfo"] = additionalContactInfo;
@@ -99,7 +100,7 @@ namespace ResumeBuilder.Controllers
         [HttpGet]
         public async Task<IActionResult> GetResumeInfo(string resumeId)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
+            var resume = await _resumeRepository.GetResume(User.GetId(), resumeId);
             if (resume == null)
                 return NotFound();
 
@@ -113,29 +114,10 @@ namespace ResumeBuilder.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateResumeInfo(string resumeId, Resume resume)
         {
-            var originalResume = await _context.Resumes.FindAsync(resumeId);
-
-            if (originalResume == null || !originalResume.UserId.Equals(User.GetId()) || resume == null)
-                return BadRequest();
-
-            if (await TryUpdateModelAsync(
-                originalResume,
-                "",
-                i => i.ResumeInfo, i => i.PersonalInfo, i => i.ProfileEntries))
-            {
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateException /* ex */)
-                {
-                    //Log the error (uncomment ex variable name and write a log.)
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                        "Try again, and if the problem persists, " +
-                        "see your system administrator.");
-                }
-            }
-            return Ok(resume);
+            var updatedResume = await _resumeRepository.UpdateResume(User.GetId(), resumeId, resume);
+            if (updatedResume == null)
+                NotFound();
+            return Ok(updatedResume);
         }
 
         #endregion
@@ -146,28 +128,20 @@ namespace ResumeBuilder.Controllers
         [HttpGet]
         public async Task<IActionResult> GetResumeName(string resumeId)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
-            if (resume == null)
+            var resumeName = await _resumeRepository.GetResumeName(User.GetId(), resumeId);
+            if (resumeName == null)
                 return NotFound();
 
-            if (!resume.UserId.Equals(User.GetId()))
-                return BadRequest();
-
-
-            return Ok(resume.Name);
+            return Ok(resumeName);
         }
 
         [ActionName("ResumeName")]
         [HttpPut]
         public async Task<IActionResult> UpdateResumeName(string resumeId, string newName)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
-
-            if (resume == null || !resume.UserId.Equals(User.GetId()) || string.IsNullOrEmpty(newName))
-                return BadRequest();
-
-            resume.Name = newName;
-            await _context.SaveChangesAsync();
+            var resume = await _resumeRepository.UpdateResumeName(User.GetId(), resumeId, newName);
+            if (resume == null)
+                NotFound();
 
             return Ok(resume);
         }
@@ -176,55 +150,39 @@ namespace ResumeBuilder.Controllers
 
         #region BASIC RESUME INFO
 
-        [ActionName("BasicResumeInfo")]
+        [ActionName("ResumeBasicInfo")]
         [HttpGet]
-        public async Task<IActionResult> GetBasicResumeInfo(string resumeId)
+        public async Task<IActionResult> GetResumeBasicInfo(string resumeId)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
-            if (resume == null)
+            var basicInfo = await _resumeRepository.GetResumeBasicInfo(User.GetId(), resumeId);
+            if (basicInfo == null)
                 return NotFound();
 
-            if (!resume.UserId.Equals(User.GetId()))
-                return BadRequest();
-
-            var resumeInfo = resume.ConvertToViewModel().ResumeInfo;
-            if (resumeInfo != null)
-                return Ok(resume.ConvertToViewModel().ResumeInfo);
-            else return NoContent();
+            return Ok(basicInfo);
         }
 
-        [ActionName("BasicResumeInfoForm")]
+        [ActionName("ResumeBasicInfoForm")]
         [HttpGet]
-        public async Task<IActionResult> GetBasicResumeInfoForm(string resumeId, int actionId)
+        public async Task<IActionResult> GetResumeBasicInfoForm(string resumeId, int actionId)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
+            var basicInfo = await _resumeRepository.GetResumeBasicInfo(User.GetId(), resumeId);
 
-            if (resume == null)
-                return NotFound();
-
-            if (!resume.UserId.Equals(User.GetId()))
-                return BadRequest();
-
-            var resumeInfo = resume.ConvertToViewModel().ResumeInfo;
             ViewData["Context"] = "Resume";
             ViewData["Action"] = (FormActions)actionId;
             ViewData["ResumeId"] = resumeId;
-            if (resumeInfo != null)
-                return PartialView("/Views/Shared/BasicResumeInfo.cshtml", resumeInfo);
-            else return PartialView("/Views/Shared/BasicResumeInfo.cshtml", new BasicResumeInfo());
+            if (basicInfo != null)
+                return PartialView("/Views/Shared/BasicResumeInfo.cshtml", basicInfo);
+            else return PartialView("/Views/Shared/BasicResumeInfo.cshtml", new ResumeBasicInfo());
         }
 
-        [ActionName("BasicResumeInfo")]
+        [ActionName("ResumeBasicInfo")]
         [HttpPut]
-        public async Task<IActionResult> UpdateBasicResumeInfo(string resumeId, BasicResumeInfo resumeInfo)
+        public async Task<IActionResult> UpdateResumeBasicInfo(string resumeId, ResumeBasicInfo resumeInfo)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
+            var resume = await _resumeRepository.UpdateResumeBasicInfo(User.GetId(), resumeId, resumeInfo);
 
-            if (resume == null || !resume.UserId.Equals(User.GetId()) || resumeInfo == null)
-                return BadRequest();
-
-            resume.ResumeInfo = JsonConvert.SerializeObject(resumeInfo);
-            await _context.SaveChangesAsync();
+            if (resume == null)
+                return NotFound();
 
             return Ok(resumeInfo);
         }
@@ -233,29 +191,23 @@ namespace ResumeBuilder.Controllers
 
         #region PERSONAL INFO
 
-        [ActionName("PersonalInfo")]
+        [ActionName("ResumePersonalInfo")]
         [HttpGet]
-        public async Task<IActionResult> GetPersonalInfo()
+        public async Task<IActionResult> GetResumePersonalInfo(string resumeId)
         {
-            var personalInfo = await _context.PersonalInfo.FindAsync(User.GetId());
-            if (personalInfo != null)
-                return Ok(personalInfo.ConvertToViewModel());
-            return NotFound();
+            var personalInfo = await _resumeRepository.GetResumePersonalInfo(User.GetId(), resumeId);
+            if (personalInfo == null)
+                return NotFound();
+
+            return Ok(personalInfo.ConvertToViewModel());
         }
 
         [ActionName("PersonalInfoForm")]
         [HttpGet]
         public async Task<IActionResult> GetPersonalInfoForm(string resumeId, int actionId)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
+            var personalInfo = await _resumeRepository.GetResumePersonalInfo(User.GetId(), resumeId);
 
-            if (resume == null)
-                return NotFound();
-
-            if (!resume.UserId.Equals(User.GetId()))
-                return BadRequest();
-
-            var personalInfo = resume.ConvertToViewModel().PersonalInfo;
             ViewData["Context"] = "Resume";
             ViewData["Action"] = (FormActions)actionId;
             ViewData["ResumeId"] = resumeId;
@@ -268,13 +220,13 @@ namespace ResumeBuilder.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdatePersonalInfo(string resumeId, VMPersonalInfo vmPersonalInfo)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
+            if (vmPersonalInfo == null)
+                return NotFound();
 
-            if (resume == null || !resume.UserId.Equals(User.GetId()) || vmPersonalInfo == null)
-                return BadRequest();
+            var resume = await _resumeRepository.UpdateResumePersonalInfo(User.GetId(), resumeId, vmPersonalInfo.ConvertToEntity());
 
-            resume.PersonalInfo = JsonConvert.SerializeObject(vmPersonalInfo.ConvertToEntity());
-            await _context.SaveChangesAsync();
+            if (resume == null)
+                return NotFound();
 
             return Ok(PartialView("/Views/Shared/VMPersonalInfo.cshtml", vmPersonalInfo));
         }
@@ -287,18 +239,7 @@ namespace ResumeBuilder.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProfileEntry(string resumeId, string id)
         {
-            var resume = await _context.Resumes.FindAsync(resumeId);
-            if (resume == null)
-                return NotFound();
-
-            if (!resume.UserId.Equals(User.GetId()))
-                return BadRequest();
-
-            var vmResume = resume.ConvertToViewModel();
-            if (vmResume == null || vmResume.ProfileEntries == null)
-                return BadRequest();
-
-            var profileEntry = vmResume.ProfileEntries.FirstOrDefault(pe => pe.Id.Equals(id));
+            var profileEntry = await _resumeRepository.GetResumeProfileEntry(User.GetId(), resumeId, id);
             if (profileEntry == null)
                 return NotFound();
 
@@ -307,20 +248,20 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("ProfileEntries")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntries(EntryCategory category)
+        public async Task<IActionResult> GetProfileEntries(string resumeId, EntryCategory category)
         {
-            var profileEntries = await _context.ProfileEntry
-                .AsNoTracking()
-                .Where(m => m.UserId == User.GetId() && m.Category == category)
-                .OrderByDescending(x => x.StartDate)
-                .ToListAsync();
+            var profileEntries = await _resumeRepository.GetResumeProfileEntriesByCategory(User.GetId(), resumeId, category);
+            //.AsNoTracking()
+            //.Where(m => m.UserId == User.GetId() && m.Category == category)
+            //.OrderByDescending(x => x.StartDate)
+            //.ToListAsync();
 
             if (profileEntries == null)
                 return NoContent();
 
             List<VMProfileEntry> vMProfileEntries = new();
-            for (int i = 0; i < profileEntries.Count; i++)
-                vMProfileEntries.Add(profileEntries[i].ConvertToViewModel());
+            foreach (var profileEntry in profileEntries)
+                vMProfileEntries.Add(profileEntry.ConvertToViewModel());
 
             return PartialView("/Views/Shared/VMProfileEntries.cshtml", vMProfileEntries);
         }
@@ -330,22 +271,11 @@ namespace ResumeBuilder.Controllers
         public async Task<IActionResult> GetProfileEntryForm(string? id, string? resumeId, EntryCategory? category, FormActions? actionId)
         {
             ProfileEntry? profileEntry = null;
-            if (id != null)
+            if (id != null && resumeId != null)
             {
-                if (resumeId == null)
-                    return BadRequest();
-
-                var resume = await _context.Resumes.FindAsync(resumeId);
-                if (resume == null)
-                    return NotFound();
-
-                var vmResume = resume.ConvertToViewModel();
-                profileEntry = vmResume.ProfileEntries.FirstOrDefault(pe => pe.Id.Equals(id));
-                //profileEntry = await _context.Resumes.FindAsync(resumeId);
+                profileEntry = await _resumeRepository.GetResumeProfileEntry(User.GetId(), resumeId, id);
                 if (profileEntry == null)
                     return NotFound();
-                if (!profileEntry.UserId.Equals(User.GetId()))
-                    return BadRequest();
             }
             if (profileEntry == null)
             {
@@ -358,62 +288,41 @@ namespace ResumeBuilder.Controllers
             return PartialView("/Views/Shared/EditorTemplates/VMProfileEntry.cshtml", profileEntry.ConvertToViewModel());
         }
 
-        [ActionName("ProfileEntry")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddProfileEntry(VMProfileEntry vmProfileEntry)
-        {
-            if (ModelState.IsValid)
-            {
-                var profileEntry = vmProfileEntry.ConvertToEntity();
-                profileEntry.UserId = User.GetId();
-                _context.Add(profileEntry);
-                await _context.SaveChangesAsync();
-                return Ok(profileEntry);
-            }
-            //return PartialView("/Views/Shared/VMProfileEntry.cshtml", vmProfileEntry);
-            return CreatedAtAction("AddProfileEntry", vmProfileEntry);
-        }
+        //[ActionName("ProfileEntry")]
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> AddProfileEntry(VMProfileEntry vmProfileEntry)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var profileEntry = vmProfileEntry.ConvertToEntity();
+        //        profileEntry.UserId = User.GetId();
+        //        _resumeRepository.Add(profileEntry);
+        //        await _resumeRepository.SaveChangesAsync();
+        //        return Ok(profileEntry);
+        //    }
+        //    //return PartialView("/Views/Shared/VMProfileEntry.cshtml", vmProfileEntry);
+        //    return CreatedAtAction("AddProfileEntry", vmProfileEntry);
+        //}
 
         [ActionName("ProfileEntry")]
         [HttpPut]
-        public async Task<IActionResult> UpdateProfileEntry(VMProfileEntry vmProfileEntry)
+        public async Task<IActionResult> UpdateProfileEntry(string resumeId, VMProfileEntry vmProfileEntry)
         {
-            var profileEntry = await _context.ProfileEntry.FindAsync(vmProfileEntry.Id);
-            if (await TryUpdateModelAsync(
-                profileEntry,
-                "",
-                i => i.Title, i => i.Organization, i => i.Location, i => i.StartDate,
-                i => i.EndDate, i => i.IsCurrent, i => i.Details, i => i.Category))
-            {
-                try
-                {
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateException /* ex */)
-                {
-                    //Log the error (uncomment ex variable name and write a log.)
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                        "Try again, and if the problem persists, " +
-                        "see your system administrator.");
-                }
-            }
+            var profileEntry = await _resumeRepository.UpdateResumeProfileEntry(User.GetId(), resumeId, vmProfileEntry.ConvertToEntity());
+            if (profileEntry == null)
+                return NotFound();
+
             return Ok(vmProfileEntry);
         }
 
         // POST: User/Delete/5
         [ActionName("ProfileEntry")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteProfileEntry(string id)
+        public async Task<IActionResult> DeleteProfileEntry(string resumeId, string id)
         {
-            var profileEntry = await _context.ProfileEntry.FindAsync(id);
-            if (profileEntry != null && profileEntry.UserId.Equals(User.GetId()))
-            {
-                _context.ProfileEntry.Remove(profileEntry);
-                await _context.SaveChangesAsync();
-                return NoContent();
-            }
-            return BadRequest();
+            await _resumeRepository.DeleteResumeProfileEntry(User.GetId(), resumeId, id);
+            return NoContent();
         }
 
         #endregion        
@@ -422,34 +331,26 @@ namespace ResumeBuilder.Controllers
         public async Task<IActionResult> Delete(string? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var resume = await _context.Resumes
-                .FirstOrDefaultAsync(m => m.Id.Equals(id));
-            if (resume == null)
-            {
-                return NotFound();
-            }
-
-            return View(resume);
+            await _resumeRepository.DeleteResume(User.GetId(), id);
+            return NoContent();
         }
 
         // POST: Resume/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            var resume = await _context.Resumes.FindAsync(id);
-            if (resume != null)
-            {
-                _context.Resumes.Remove(resume);
-            }
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(string id)
+        //{
+        //    var resume = await _resumeRepository.Resumes.FindAsync(id);
+        //    if (resume != null)
+        //    {
+        //        _resumeRepository.Resumes.Remove(resume);
+        //    }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        //    await _resumeRepository.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
     }
 }

@@ -62,12 +62,12 @@
                 const actionId = @((int)FormActions.None);
                 $.ajax({
                     type: 'GET',
-                    url: '@Url.Action("PersonalInfoForm")',
+                    url: '@Url.Action("PersonalInfoView")',
                     data: { actionId: actionId },
                     success: function (result) {
                         const container = $('#personal-info-placeholder');
                         $(container).empty();
-                        $(container).append(result);                        
+                        $(container).append(result);
                     },
                     error: function () {
                         alert("Error trying to retrieve Entries");
@@ -81,11 +81,11 @@
             loadProfileEntries(@((int)EntryCategory.WorkExperience));
 
             $("#add-education").click(function () {
-                openEntryForm(@((int)EntryCategory.Education));                
+                openEntryForm(@((int)EntryCategory.Education));
             })
 
             $("#add-experience").click(function () {
-                openEntryForm(@((int)EntryCategory.WorkExperience));                
+                openEntryForm(@((int)EntryCategory.WorkExperience));
             })
 
             function loadProfileEntries(categoryId) {
@@ -116,7 +116,7 @@
 
             function openEntryForm(categoryId) {
                 const actionId = @((int)FormActions.Create);
-                $.ajax({                    
+                $.ajax({
                     url: '@Url.Action("ProfileEntryForm")',
                     type: 'GET',
                     data: { category: categoryId, actionId: actionId },
@@ -126,19 +126,15 @@
                         alert("Error trying to retrieve AddProfileEntry");
                     }
                 })
-            }            
+            }
 
-            $(document).ajaxSuccess(function (event, xhr, settings) {                                
-                if (settings.url.includes('@Url.Action("ProfileEntryForm")')) {
-                    console.log('GetProfileEntryForm');
-                    var result = xhr.responseText;
-                    console.log(result);
-                    $(".modal-body").empty();
-                    $(".modal-body").append(result);
-                    $(".modal-body").find("#cancel-btn").click(function () {
-                        hideForm()
-                    });
-                    $("#open-modal-btn").trigger("click");
+            //Listener
+            $(document).ajaxSuccess(function (event, xhr, settings) {
+                if (settings.url.includes('@Url.Action("PersonalInfoForm")')) {                    
+                    showContentOnModal(xhr.responseText);                    
+                }
+                else if (settings.url.includes('@Url.Action("ProfileEntryForm")')) {
+                    showContentOnModal(xhr.responseText);
                 }
                 else if (settings.url.includes('@Url.Action("ProfileEntry")')) {
                     var response = xhr.responseJSON;
@@ -146,7 +142,19 @@
                     hideForm();
                 }
             });
-            
+
+            function showContentOnModal(content){
+                $(".modal-body").empty();
+                $(".modal-body").append(content);
+                $(".modal-body").find("#cancel-btn").click(function () {
+                    hideForm()
+                });
+                $(".modal-body").find("#submit-btn").click(function () {
+                    hideForm()
+                });
+                $("#open-modal-btn").trigger("click");
+            }
+
             function hideForm() {
                 $(".btn-close").trigger("click");
             }

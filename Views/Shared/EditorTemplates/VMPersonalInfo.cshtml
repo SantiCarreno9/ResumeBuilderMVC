@@ -1,12 +1,11 @@
 ﻿@model ResumeBuilder.Models.ViewModels.VMPersonalInfo
 @{
-    FormActions action = ViewData.ContainsKey("Action") ? (FormActions)ViewData["Action"] : FormActions.None;
     string context = ViewData.ContainsKey("Context") ? ViewData["Context"].ToString() : "User";
     string id = ViewData.ContainsKey("ResumeId") ? ViewData["ResumeId"].ToString() : "";
 }
 
-<div id="personal-info-form" class="d-flex flex-row">
-    <div style="flex:1">
+<div id="personal-info-form" class="d-flex">
+    <div style="flex:1;margin:1em 0;">
         <form asp-action="Create" id="form">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-floating mb-2">
@@ -48,35 +47,35 @@
                     </li>
                 </ul>
             </div>
-            <div id="user-create-btns" style="display:none">
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>
-            <div id="edit-btns" class="mb-2" style="display:none">
-                <div class="form-group">
-                    <button id="submit-btn" type="button" class="btn btn-primary">Save</button>
-                    <button id="cancel-btn" type="button" class="btn btn-secondary">Cancel</button>
-                </div>
+            <div id="additional-contacts-template" style="display:none">
+                <li class="row mb-2 align-items-center d-flex flex-row">
+                    <input type="text" class="form-control-plaintext mx-2" style="flex:1" />
+                    <input type="text" class="form-control editable-field mx-2" style="flex:1" />
+                    <div class="form-floating mb-2 resume-only" style="display:none">
+                        <input type="text" class="form-control editable-field" id="display-name" />
+                        <label for="display-name" class="control-label">Display Name</label>
+                    </div>
+                    <button id="delete-btn" type="button" class="btn-close mx-1"></button>
+                </li>
             </div>
         </form>
     </div>
-    <div class="text-end">
-        <button class="btn-icon" id="edit-btn" type="button" style="font-size:1.5rem;"><i class="fas fa-edit"></i></button>
+    <div id="user-create-btns" style="display:none">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+    <div id="edit-btns" class="mb-2">
+        <div class="form-group">
+            <button id="submit-btn" type="button" class="btn btn-primary">Save</button>
+            <button id="cancel-btn" type="button" class="btn btn-secondary">Cancel</button>
+        </div>
     </div>
 </div>
 
-<div id="additional-contacts-template" style="display:none">
-    <li class="row mb-2 align-items-center d-flex flex-row">
-        <input type="text" class="form-control-plaintext mx-2" readonly />
-        <input type="text" class="form-control editable-field mx-2" style="flex:1" />
-        <div class="form-floating mb-2 resume-only" style="display:none">
-            <input type="text" class="form-control editable-field" id="display-name" />
-            <label for="display-name" class="control-label">Display Name</label>
-        </div>
-        <button type="button" class="btn-close mx-2" onclick="deleteAdditionalContact(this);"></button>
-    </li>
-</div>
-
 <style>
+    #personal-info-form {
+        flex-direction: column;
+    }
+
     .editable-field {
         border-bottom: var(--bs-border-width) solid var(--bs-border-color);
     }
@@ -90,28 +89,15 @@
 
     $(document).ready(function () {
         const parent = $('#personal-info-form');
-        const inputs = $(parent).find('input');
-        const editBtns = $(parent).find('#edit-btns');
 
         // ---------- Additional Contacts Logic ----------
         const additionalContactsList = $('#additional-contacts-list');
         const additionalContactTemplate = $("#additional-contacts-template")[0].firstElementChild;
         const contacTitleSelect = $("#contact-title-select");
 
-        let isEditing = false;
-
-        loadContacts();
+        // loadContacts();
 
         //Initialization
-        if ('@(action == FormActions.Edit)' == 'True')
-            isEditing = true;
-        else if ('@(action == FormActions.Create)' == 'True')
-            $(parent).find('#cancel-btn').css('display', 'none');
-
-        $(parent).find("#edit-btn").click(function () {
-            isEditing = !isEditing;
-            updateFormState();
-        });
 
         $(parent).find("#submit-btn").click(function () {
             const form = $(parent).find("#form");
@@ -121,14 +107,12 @@
             }
             if ($(form).valid()) {
                 var formData = getFormData($(form));
-                formData['AdditionalContactInfo'] = getAdditionalContactsJSON();
+                // formData['AdditionalContactInfo'] = getAdditionalContactsJSON();
                 $.ajax({
                     url: endpoint,
                     type: "PUT",
                     data: formData,
                     success: function (response) {
-                        isEditing = false;
-                        updateFormState();
                     },
                     error: function (request, status, error) {
                         console.log(request.responseText);
@@ -137,53 +121,9 @@
             }
         });
 
-        $(parent).find("#cancel-btn").click(function () {
-            $.ajax({
-                url: '@Url.Action("PersonalInfo")',
-                type: "GET",
-                dataType: "json",
-                success: function (response) {
-                    $('#first-name-input').val(response.firstName);
-                    $('#last-name-input').val(response.lastName);
-                    $('#email-input').val(response.email);
-                    $('#phone-input').val(response.phoneNumber);
-                    $('#address-input').val(response.address);
-                    $('#postal-code-input').val(response.postalCode);
-                    $('#linkedin-input').val(response.linkedInURL);
-                    $('#website-input').val(response.websiteURL);
-                    $('#github-input').val(response.gitHubAccount);
-                    isEditing = false;
-                    updateFormState();
-                },
-                error: function (request, status, error) {
-                    console.log(request.responseText);
-                }
-            });
-        });
-
         $(contacTitleSelect).on('change', function () {
             setContactFromDropdown(contacTitleSelect);
-        });        
-
-        function updateFormState() {
-            for (let i = 0; i < inputs.length; i++) {
-                inputs[i].readOnly = !isEditing;
-                if (isEditing) {
-                    inputs[i].classList.add("form-control");
-                    inputs[i].classList.remove("form-control-plaintext");
-                    $(editBtns).css('display', 'block');
-                }
-                else {
-                    inputs[i].classList.remove("form-control");
-                    inputs[i].classList.add("form-control-plaintext");
-                    $(editBtns).css('display', 'none');
-                }
-            }
-            // let additionalContactsList = additionalContactsList.children;
-            // for (let i = 0; i < additionalContactsList.length - 1; i++) {
-            //     additionalContactsList[i].lastChild.style.display = !isEditing ? 'none' : 'block';
-            // }
-        }
+        });
 
         function getFormData($form) {
             var unindexed_array = $form.serializeArray();
@@ -198,56 +138,59 @@
 
         // ---------- Additional Contacts Logic ----------
 
-        function loadContacts() {            
-            let contacts = JSON.parse('@Html.Raw(Model.AdditionalContactInfo)');
-            if(contacts!=null){
-                for (let i = 0; i < contacts.length; i++) {                    
-                    addAdditionalContact(contacts[i].name, contacts[i].value);
-                }
-            }            
-            updateFormState();
-        }
+        // function loadContacts() {
+        //     let contacts = JSON.parse('@Html.Raw(Model.AdditionalContactInfo)');
+        //     if(contacts!=null){
+        //         for (let i = 0; i < contacts.length; i++) {
+        //             addAdditionalContact(contacts[i].name, contacts[i].value);
+        //         }
+        //     }
+        //     updateFormState();
+        // }
 
-        function getAdditionalContactsJSON() {
-            var myObject = [];
-            let index = 0;
-            for (const child of additionalContactsList.children) {
-                let nameField = $(child).children().eq(0)[0];
-                let valueField = $(child).children().eq(1)[0];
-                myObject[index] = { name: nameField.value, value: valueField.value };
-                index++;
-                if (additionalContactsList.childElementCount - 1 == index)
-                    break;
-            }
-            return JSON.stringify(myObject);
-        }
+        // function getAdditionalContactsJSON() {
+        //     var myObject = [];
+        //     let index = 0;
+        //     for (const child of additionalContactsList.children) {
+        //         let nameField = $(child).children().eq(0)[0];
+        //         let valueField = $(child).children().eq(1)[0];
+        //         myObject[index] = { name: nameField.value, value: valueField.value };
+        //         index++;
+        //         if (additionalContactsList.childElementCount - 1 == index)
+        //             break;
+        //     }
+        //     return JSON.stringify(myObject);
+        // }
 
         function updateContactListOptions(name = null, added = false) {
-            console.log('updateContactListOptions()');
             if (contacTitleSelect == null)
                 return;
-            console.log(contacTitleSelect);
-            console.log(contacTitleSelect.options);
-            for (let i = 0; i < contacTitleSelect.options.length; i++) {
+
+            let dropdown = contacTitleSelect[0];
+            for (let i = 0; i < dropdown.options.length; i++) {
                 if (name == "Other")
                     break;
-                if (contacTitleSelect.options[i].value == name)
-                    contacTitleSelect.options[i].style.display = added ? "none" : "block";
+                if (dropdown.options[i].value == name)
+                    dropdown.options[i].style.display = added ? "none" : "block";
             }
-            contacTitleSelect.value = "";
+            dropdown.value = "";
         }
 
         function setContactFromDropdown(select) {
             const value = select.value;
-            addAdditionalContact(value);
+            addAdditionalContact(value,value);
         }
 
         function addAdditionalContact(name = null, value = null) {
             console.log('Name: ' + name + ' Value: ' + value);
             let newContact = additionalContactTemplate.cloneNode(true);
             let dropdown = $(contacTitleSelect).parent();
+
             $(newContact).insertBefore($(dropdown));
-            // additionalContactsList.insertBefore(newContact, contacTitleSelect);
+            $(newContact).find("#delete-btn").click(function () {
+                    deleteAdditionalContact(newContact);
+            });
+
             if (name != null) {
                 let nameField = $(newContact).children().eq(0)[0];
                 nameField.value = name;
@@ -258,16 +201,16 @@
             if (value != null) {
                 $(newContact).children().eq(1)[0].value = value;
             }
-            $(newContact).children().last().click(function () {
-                deleteAdditionalContact(this)
-            })
-            // updateContactListOptions(name, true);
+            // $(newContact).children().last().click(function () {
+            //     deleteAdditionalContact(this)
+            // })
+            updateContactListOptions(name, true);
         }
 
         function deleteAdditionalContact(button) {
             const option = $(button).parent().children().eq(0)[0].value;
             // updateContactListOptions(option, false);
-            button.parentElement.remove();
+            button.remove();
         }
     });
 

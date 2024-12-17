@@ -1,0 +1,133 @@
+﻿@model ResumeBuilder.Models.ViewModels.VMPersonalInfo
+
+<div id="personal-info-form" class="d-flex flex-row">
+    <div style="flex:1">
+        <div class="custom-section">
+            <div class="title">First Name</div>
+            <div class="text">@Model.FirstName</div>
+        </div>
+        <div class="custom-section">
+            <div class="title">Last Name</div>
+            <div class="text">@Model.LastName</div>
+        </div>
+        <div class="custom-section">
+            <div class="title">Email</div>
+            <div class="text">@Model.Email</div>
+        </div>
+        <div class="custom-section">
+            <div class="title">Phone Number</div>
+            <div class="text">@Model.PhoneNumber</div>
+        </div>
+        <div class="custom-section">
+            <div class="title">Address</div>
+            <div class="text">@Model.Address</div>
+        </div>
+        @* <form asp-action="Create" id="form">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-floating mb-2">
+                <input asp-for="FirstName" class="form-control editable-field" id="first-name-input" />
+                <label asp-for="FirstName" class="control-label"></label>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="LastName" class="form-control editable-field" id="last-name-input" />
+                <label asp-for="LastName" class="control-label"></label>
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Email" class="form-control editable-field" id="email-input" />
+                <label asp-for="Email" class="control-label"></label>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="PhoneNumber" class="form-control editable-field" id="phone-input" />
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Address" class="form-control editable-field" id="address-input" />
+                <label asp-for="Address" class="control-label"></label>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="px-2">
+                <h5>Additional Contact Info</h5>
+                <ul class="list-group" id="additional-contacts-list">
+                    <li class="row mb-2">
+                        <select name="contacts" id="contact-title-select" class="form-select mx-2 w-50">
+                            <option value=""></option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Website">Website</option>
+                            <option value="GitHub">GitHub</option>
+                            <option value="Portfolio">Portfolio</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </li>
+                </ul>
+            </div>
+            <div id="user-create-btns" style="display:none">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+            <div id="edit-btns" class="mb-2" style="display:none">
+                <div class="form-group">
+                    <button id="submit-btn" type="button" class="btn btn-primary">Save</button>
+                    <button id="cancel-btn" type="button" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </form> *@
+    </div>
+    <div class="text-end">
+        <button class="btn-icon" id="edit-btn" type="button" style="font-size:1.5rem;"><i class="fas fa-edit"></i></button>
+    </div>
+</div>
+
+@* <div id="additional-contacts-template" style="display:none">
+    <li class="row mb-2 align-items-center d-flex flex-row">
+        <input type="text" class="form-control-plaintext mx-2" readonly />
+        <input type="text" class="form-control editable-field mx-2" style="flex:1" />
+        <div class="form-floating mb-2 resume-only" style="display:none">
+            <input type="text" class="form-control editable-field" id="display-name" />
+            <label for="display-name" class="control-label">Display Name</label>
+        </div>
+        <button type="button" class="btn-close mx-2" onclick="deleteAdditionalContact(this);"></button>
+    </li>
+</div> *@
+
+<style>
+    .editable-field {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+    }
+
+    .title{
+        font-weight:600;
+    }
+
+    .text {
+        font-weight: 400;
+    }
+
+    .custom-section{
+        margin:1em 0;        
+    }
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#personal-info-form").find("#edit-btn").click(function () {
+            $.ajax({
+                url: '@Url.Action("PersonalInfoForm")',
+                type: 'GET',                
+                success: function (response) {
+
+                },
+                error: function (request, status, error) {
+                    console.log(request.responseText);
+                }
+            });
+        });
+    });
+
+</script>

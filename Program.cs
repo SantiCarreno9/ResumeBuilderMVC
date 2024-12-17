@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ResumeBuilder.Data;
+using ResumeBuilder.Repositories.Contracts;
+using ResumeBuilder.Repositories.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,9 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 //builder.Services.AddDbContext<ResumeBuilderContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'ResumeBuilderContext' not found.")));
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IResumeRepository, ResumeRepository>();
 
 var app = builder.Build();
 

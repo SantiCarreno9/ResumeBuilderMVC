@@ -79,11 +79,11 @@ namespace ResumeBuilder.Models.Extensions
             return new VMResume
             {
                 Id = resume.Id,
-                ResumeInfo = resume.ResumeInfo != null ? JsonSerializer.Deserialize<BasicResumeInfo>(resume.ResumeInfo) : new BasicResumeInfo(),
+                ResumeInfo = resume.ResumeInfo != null ? JsonSerializer.Deserialize<ResumeBasicInfo>(resume.ResumeInfo) : new ResumeBasicInfo(),
                 PersonalInfo = resume.PersonalInfo != null ? JsonSerializer.Deserialize<PersonalInfo>(resume.PersonalInfo) : new PersonalInfo(),
                 ProfileEntries = resume.ProfileEntries != null ? JsonSerializer.Deserialize<List<ProfileEntry>>(resume.ProfileEntries) : new List<ProfileEntry>(),
             };
         }
-
+        
     }
 }

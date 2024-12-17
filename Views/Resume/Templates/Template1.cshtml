@@ -10,12 +10,31 @@
         return startDate + " - " + endDate;
     }
 }
+@if (Model == null)
+    return;
+
 <div class="resume">
     <header id="header">
         <!-- resume header with your name and title -->
-        <h1>@Model?.PersonalInfo?.FirstName @Model?.PersonalInfo?.LastName</h1>
+        @if(Model!.PersonalInfo!=null){
+            if (Model!.PersonalInfo!.FirstName != null || Model!.PersonalInfo!.LastName!=null){
+                <h1>@Model.PersonalInfo?.FirstName @Model?.PersonalInfo?.LastName</h1>
+            }
+            else{
+                <h1 class="template-content">[Name]</h1>
+            }
+        }
+        
         <hr>
-        <h2>@Model?.ResumeInfo?.JobTitle</h2>
+        @if (Model!.ResumeInfo != null && Model!.ResumeInfo.JobTitle != null)
+        {
+            <h2> @Model!.ResumeInfo!.JobTitle</h2>
+        }
+        else
+        {
+            <h2 class="template-content">[Job Title]</h2>
+        }
+
         <hr>
     </header>
     <main>
@@ -95,11 +114,12 @@
                     @Html.Raw(Model?.ResumeInfo?.Skills)
                 }
             </section>
-            @if (Model?.ProfileEntries != null)
-            {
-                <section>
-                    <h2>EDUCATION</h2>
-                    <br>
+
+            <section>
+                <h2>EDUCATION</h2>
+                <br>
+                @if (Model?.ProfileEntries != null)
+                {
                     @foreach (var item in Model?.ProfileEntries)
                     {
                         <h3>@item.Title</h3>
@@ -107,8 +127,9 @@
                         <h4>@(GetDates(item.StartDate, item.EndDate))</h4>
                         <br>
                     }
-                </section>
-            }
+                }
+            </section>
+
             @* @if (educationItems != null)
             {
             <Education Items="educationItems" />
@@ -144,3 +165,9 @@
         </article>
     </main>
 </div>
+
+<style>
+    .template-content {
+        color: lightgray;
+    }
+</style>

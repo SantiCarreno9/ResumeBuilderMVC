@@ -2,7 +2,7 @@
 
 namespace ResumeBuilder.Models
 {
-    public class BasicResumeInfo
+    public class ResumeBasicInfo
     {                
         [Column(TypeName = "nvarchar(50)")]
         public string? JobTitle { get; set; }
