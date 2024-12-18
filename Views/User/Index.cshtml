@@ -63,7 +63,6 @@
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("PersonalInfoView")',
-                    data: { actionId: actionId },
                     success: function (result) {
                         const container = $('#personal-info-placeholder');
                         $(container).empty();
@@ -129,29 +128,31 @@
             }
 
             //Listener
-            $(document).ajaxSuccess(function (event, xhr, settings) {
-                if (settings.url.includes('@Url.Action("PersonalInfoForm")')) {                    
-                    showContentOnModal(xhr.responseText);                    
-                }
-                else if (settings.url.includes('@Url.Action("ProfileEntryForm")')) {
-                    showContentOnModal(xhr.responseText);
-                }
-                else if (settings.url.includes('@Url.Action("ProfileEntry")')) {
-                    var response = xhr.responseJSON;
-                    loadProfileEntries(response.category);
-                    hideForm();
-                }
-            });
+
+        $(document).ajaxSuccess(function (event, xhr, settings) {
+            const url = new URL(settings.url, window.location.origin); // Parse the URL
+            const path = url.pathname; // Extract the path (e.g., /PersonalInfoForm)
+
+            if (path === '@Url.Action("PersonalInfoForm")') {
+                showContentOnModal(xhr.responseText);
+            } else if (path === '@Url.Action("PersonalInfo")') {
+                loadPersonalInfo();
+                hideForm();
+            } else if (path === '@Url.Action("ProfileEntryForm")') {
+                showContentOnModal(xhr.responseText);
+            } else if (path === '@Url.Action("ProfileEntry")') {
+                const response = xhr.responseJSON;
+                loadProfileEntries(response.category);
+                hideForm();
+            }
+        });
 
             function showContentOnModal(content){
                 $(".modal-body").empty();
                 $(".modal-body").append(content);
                 $(".modal-body").find("#cancel-btn").click(function () {
-                    hideForm()
-                });
-                $(".modal-body").find("#submit-btn").click(function () {
-                    hideForm()
-                });
+                    hideForm();
+                });                
                 $("#open-modal-btn").trigger("click");
             }
 

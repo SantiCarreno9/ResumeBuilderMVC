@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ResumeBuilder.Models;
 using ResumeBuilder.Models.Extensions;
 using ResumeBuilder.Models.ViewModels;
 using ResumeBuilder.Repositories.Contracts;
+using System;
 
 namespace ResumeBuilder.Controllers
 {
@@ -55,10 +57,13 @@ namespace ResumeBuilder.Controllers
         public async Task<IActionResult> GetPersonalInfoView()
         {
             var personalInfo = await _repository.GetPersonalInfo(User.GetId());
-            if (personalInfo != null)
-                return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
+            if (personalInfo == null)
+                return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
 
-            return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
+            if (personalInfo.AdditionalContactInfo != null)
+                ViewData["Contacts"] = JsonConvert.DeserializeObject<List<AdditionalContact>>(personalInfo.AdditionalContactInfo);
+            return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
+
         }
 
         [ActionName("PersonalInfoForm")]
@@ -78,31 +83,10 @@ namespace ResumeBuilder.Controllers
         public async Task<IActionResult> UpdatePersonalInfo(VMPersonalInfo vmPersonalInfo)
         {
             var personalInfo = await _repository.UpdatePersonalInfo(User.GetId(), vmPersonalInfo.ConvertToEntity());
-            if (personalInfo != null)
-                //Ok(PartialView("/Views/Shared/VMPersonalInfo.cshtml", personalInfo));
-                Ok(personalInfo);
+            if (personalInfo != null)                
+                return Ok(personalInfo);
 
-            return NotFound();
-            //var personalInfo = await _context.PersonalInfo.FindAsync(User.GetId());
-            //if (await TryUpdateModelAsync(
-            //    personalInfo,
-            //    "",
-            //    i => i.FirstName, i => i.LastName, i => i.Address, i => i.PhoneNumber,
-            //    i => i.Address, i => i.AdditionalContactInfo))
-            //{
-            //    try
-            //    {
-            //        await _context.SaveChangesAsync();
-            //    }
-            //    catch (DbUpdateException /* ex */)
-            //    {
-            //        //Log the error (uncomment ex variable name and write a log.)
-            //        ModelState.AddModelError("", "Unable to save changes. " +
-            //            "Try again, and if the problem persists, " +
-            //            "see your system administrator.");
-            //    }
-            //}
-            //return Ok(PartialView("/Views/Shared/VMPersonalInfo.cshtml", personalInfo));
+            return NotFound();            
         }
 
         #endregion
@@ -182,7 +166,7 @@ namespace ResumeBuilder.Controllers
             var profileEntry = await _repository.UpdateProfileEntry(User.GetId(), vmProfileEntry.Id, vmProfileEntry.ConvertToEntity());
             if (profileEntry != null)
                 return Ok(vmProfileEntry);
-            
+
             return BadRequest();
 
             //var profileEntry = await _repository.GetProfileEntry(User.GetId(),vmProfileEntry.Id) _context.ProfileEntry.FindAsync(vmProfileEntry.Id);
@@ -231,7 +215,7 @@ namespace ResumeBuilder.Controllers
                 return NotFound();
             }
 
-            await _repository.DeletePersonalInfo(User.GetId());            
+            await _repository.DeletePersonalInfo(User.GetId());
             return NoContent();
         }
 

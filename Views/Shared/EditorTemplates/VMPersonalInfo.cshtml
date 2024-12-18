@@ -88,26 +88,25 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        const parent = $('#personal-info-form');
-
+        const parent = $("#personal-info-form");
         // ---------- Additional Contacts Logic ----------
         const additionalContactsList = $('#additional-contacts-list');
         const additionalContactTemplate = $("#additional-contacts-template")[0].firstElementChild;
         const contacTitleSelect = $("#contact-title-select");
 
-        // loadContacts();
+        loadContacts();
 
         //Initialization
 
         $(parent).find("#submit-btn").click(function () {
-            const form = $(parent).find("#form");
+            const form = $(parent).find("form");
             let endpoint = '@Url.Action("PersonalInfo")';
             if ('@context' == 'Resume') {
                 endpoint = endpoint.concat("?resumeId=@id");
             }
             if ($(form).valid()) {
                 var formData = getFormData($(form));
-                // formData['AdditionalContactInfo'] = getAdditionalContactsJSON();
+                formData['AdditionalContactInfo'] = getAdditionalContactsJSON();
                 $.ajax({
                     url: endpoint,
                     type: "PUT",
@@ -122,11 +121,11 @@
         });
 
         $(contacTitleSelect).on('change', function () {
-            setContactFromDropdown(contacTitleSelect);
+            setContactFromDropdown(contacTitleSelect[0]);
         });
 
-        function getFormData($form) {
-            var unindexed_array = $form.serializeArray();
+        function getFormData(form) {
+            var unindexed_array = $(form).serializeArray();
             var indexed_array = {};
 
             $.map(unindexed_array, function (n, i) {
@@ -138,47 +137,56 @@
 
         // ---------- Additional Contacts Logic ----------
 
-        // function loadContacts() {
-        //     let contacts = JSON.parse('@Html.Raw(Model.AdditionalContactInfo)');
-        //     if(contacts!=null){
-        //         for (let i = 0; i < contacts.length; i++) {
-        //             addAdditionalContact(contacts[i].name, contacts[i].value);
-        //         }
-        //     }
-        //     updateFormState();
-        // }
+        function loadContacts() {
+            if('@(Model.AdditionalContactInfo == null)'=='True')
+                return;
+            let contacts = JSON.parse('@Html.Raw(Model.AdditionalContactInfo)');
+            if(contacts!=null){
+                for (let i = 0; i < contacts.length; i++) {
+                    addAdditionalContact(contacts[i].name, contacts[i].value);
+                }
+            }
+            // updateFormState();
+        }
 
-        // function getAdditionalContactsJSON() {
-        //     var myObject = [];
-        //     let index = 0;
-        //     for (const child of additionalContactsList.children) {
-        //         let nameField = $(child).children().eq(0)[0];
-        //         let valueField = $(child).children().eq(1)[0];
-        //         myObject[index] = { name: nameField.value, value: valueField.value };
-        //         index++;
-        //         if (additionalContactsList.childElementCount - 1 == index)
-        //             break;
-        //     }
-        //     return JSON.stringify(myObject);
-        // }
+        function getAdditionalContactsJSON() {
+            var myObject = [];
+            let index = 0;
+            let contactsCount = $(additionalContactsList).children().length;
+            console.log('contactsCount: '+contactsCount);
+            if(contactsCount > 1){
+                console.log('contactsCount>1');
+                    for (const child of $(additionalContactsList).children()) {
+                    let nameField = $(child).children().eq(0)[0];                    
+                    let valueField = $(child).children().eq(1)[0];                    
+                    myObject[index] = { name: nameField.value, value: valueField.value };
+                    index++;
+                    if (contactsCount - 1 == index)
+                        break;
+                    }
+            }
+            return JSON.stringify(myObject);
+        }
 
         function updateContactListOptions(name = null, added = false) {
+            console.log('Name: ' + name);
             if (contacTitleSelect == null)
                 return;
 
             let dropdown = contacTitleSelect[0];
-            for (let i = 0; i < dropdown.options.length; i++) {
-                if (name == "Other")
-                    break;
+            if(name!="Other")
+            {
+                for (let i = 0; i < dropdown.options.length; i++) {
                 if (dropdown.options[i].value == name)
                     dropdown.options[i].style.display = added ? "none" : "block";
+                }
             }
             dropdown.value = "";
         }
 
         function setContactFromDropdown(select) {
             const value = select.value;
-            addAdditionalContact(value,value);
+            addAdditionalContact(value);
         }
 
         function addAdditionalContact(name = null, value = null) {
@@ -207,10 +215,10 @@
             updateContactListOptions(name, true);
         }
 
-        function deleteAdditionalContact(button) {
-            const option = $(button).parent().children().eq(0)[0].value;
-            // updateContactListOptions(option, false);
-            button.remove();
+        function deleteAdditionalContact(contact) {
+            let option = $(contact).children().eq(0)[0];
+            updateContactListOptions(option.value, false);
+            contact.remove();
         }
     });
 

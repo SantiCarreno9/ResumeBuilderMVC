@@ -29,5 +29,6 @@ namespace ResumeBuilder.Models.ViewModels
         [Column(TypeName = "nvarchar(4000)")]
         [Display(Name = "GitHub Account")]
         public string? AdditionalContactInfo { get; set; }
+              
     }
 }
