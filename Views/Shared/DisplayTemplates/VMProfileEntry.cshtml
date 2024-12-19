@@ -1,5 +1,15 @@
 ﻿@model ResumeBuilder.Models.ViewModels.VMProfileEntry
 
+@{
+    //Display Version
+    string? context = null;
+    if (ViewData.ContainsKey("Context") && ViewData["Context"] != null)
+        context = ViewData["Context"]!.ToString();
+    string? resumeId = null;
+    if (ViewData.ContainsKey("ResumeId") && ViewData["ResumeId"] != null)
+        resumeId = ViewData["ResumeId"]!.ToString();
+}
+
 <div id="profile-entry-@Model.Id">
     <dl>
         <div class="title-cont">
@@ -11,7 +21,7 @@
                         <button type="button" class="btn-icon" id="delete-btn" style="font-size:1.5rem;"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
-            </dd>            
+            </dd>
         </div>
         <dd>@Model.Organization</dd>
         <dd>@Model.Location</dd>
@@ -22,16 +32,22 @@
     </dl>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="text/javascript">
-
     $(document).ready(function () {
         const parent = $('@("#profile-entry-" + Model.Id.ToString())');
 
         $(parent).find("#edit-btn").click(function () {
+            let endpoint = '@Url.Action("ProfileEntryForm")';
+            if ('@context' == 'Resume') {
+                endpoint = endpoint.concat("?id=@Model.Id&resumeId=@resumeId");
+            }
+            else{
+                endpoint = endpoint.concat("?id=@Model.Id");
+            }
             $.ajax({
-                url: '@Url.Action("ProfileEntryForm")',
+                url: endpoint,
                 type: 'GET',
-                data: { id: '@Model.Id', actionId:'@((int)FormActions.Edit)' },
                 success: function (response) {
 
                 },
@@ -42,10 +58,16 @@
         });
 
         $(parent).find("#delete-btn").click(function () {
+            let endpoint = '@Url.Action("ProfileEntry")';
+            if ('@context' == 'Resume') {
+                endpoint = endpoint.concat("?id=@Model.Id&resumeId=@resumeId");
+            }
+            else{
+                endpoint = endpoint.concat("?id=@Model.Id");
+            }
             $.ajax({
-                url: '@Url.Action("ProfileEntry")',
+                url: endpoint,
                 type: 'DELETE',
-                data: { id: '@Model.Id' },
                 success: function (response) {
                     $(parent).remove();
                 },

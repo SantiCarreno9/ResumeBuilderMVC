@@ -13,8 +13,8 @@
         const quill = new Quill(container, {
             theme: 'snow'
         });
-        const field = $(parent).find("#@(Model.FormField)")[0];//[0] to get the javascript element from the jquery one
-        quill.root.innerHTML = field.value;
+        const field = $(parent).find("#@(Model.FormField)")[0];//[0] to get the javascript element from the jquery one                
+        quill.clipboard.dangerouslyPasteHTML(field.value);        
 
         quill.on('text-change', (delta, oldDelta, source) => {
             if (source == 'user') {

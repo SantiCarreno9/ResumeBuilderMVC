@@ -57,22 +57,22 @@ namespace ResumeBuilder.Controllers
         public async Task<IActionResult> GetPersonalInfoView()
         {
             var personalInfo = await _repository.GetPersonalInfo(User.GetId());
+
+            ViewData["Context"] = "User";
             if (personalInfo == null)
                 return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
 
             if (personalInfo.AdditionalContactInfo != null)
                 ViewData["Contacts"] = JsonConvert.DeserializeObject<List<AdditionalContact>>(personalInfo.AdditionalContactInfo);
             return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
-
         }
 
         [ActionName("PersonalInfoForm")]
         [HttpGet]
-        public async Task<IActionResult> GetPersonalInfoForm(int actionId)
+        public async Task<IActionResult> GetPersonalInfoForm()
         {
             var personalInfo = await _repository.GetPersonalInfo(User.GetId());
             ViewData["Context"] = "User";
-            ViewData["Action"] = (FormActions)actionId;
             if (personalInfo != null)
                 return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
             else return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
@@ -83,10 +83,10 @@ namespace ResumeBuilder.Controllers
         public async Task<IActionResult> UpdatePersonalInfo(VMPersonalInfo vmPersonalInfo)
         {
             var personalInfo = await _repository.UpdatePersonalInfo(User.GetId(), vmPersonalInfo.ConvertToEntity());
-            if (personalInfo != null)                
+            if (personalInfo != null)
                 return Ok(personalInfo);
 
-            return NotFound();            
+            return NotFound();
         }
 
         #endregion
@@ -100,7 +100,7 @@ namespace ResumeBuilder.Controllers
             var profileEntry = await _repository.GetProfileEntry(User.GetId(), id);
             if (profileEntry == null)
                 return NotFound();
-
+            ViewData["Context"] = "User";
             return PartialView("/Views/Shared/DisplayTemplates/VMProfileEntry.cshtml", profileEntry.ConvertToViewModel());
         }
 
@@ -113,6 +113,7 @@ namespace ResumeBuilder.Controllers
             if (profileEntries == null)
                 return NoContent();
 
+            ViewData["Context"] = "User";
             List<VMProfileEntry> vMProfileEntries = new();
             foreach (ProfileEntry entry in profileEntries)
                 vMProfileEntries.Add(entry.ConvertToViewModel());
@@ -122,16 +123,12 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("ProfileEntryForm")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntryForm(string? id, EntryCategory? category, FormActions? actionId)
+        public async Task<IActionResult> GetProfileEntryForm(string? id, EntryCategory? category)
         {
             ProfileEntry? profileEntry = null;
             if (id != null)
             {
                 profileEntry = await _repository.GetProfileEntry(User.GetId(), id);
-                if (profileEntry == null)
-                    return NotFound();
-                if (!profileEntry.UserId.Equals(User.GetId()))
-                    return BadRequest();
             }
             if (profileEntry == null)
             {
@@ -140,55 +137,30 @@ namespace ResumeBuilder.Controllers
                 profileEntry.Category = category ?? EntryCategory.WorkExperience;
             }
 
-            ViewData["Action"] = actionId ?? FormActions.Edit;
+            ViewData["Context"] = "User";
             return PartialView("/Views/Shared/EditorTemplates/VMProfileEntry.cshtml", profileEntry.ConvertToViewModel());
         }
 
         [ActionName("ProfileEntry")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddProfileEntry(VMProfileEntry vmProfileEntry)
+        public async Task<IActionResult> UpdateOrAddProfileEntry(VMProfileEntry vmProfileEntry)
         {
             if (ModelState.IsValid)
             {
-                var profileEntry = vmProfileEntry.ConvertToEntity();
-                profileEntry.UserId = User.GetId();
-                await _repository.AddProfileEntry(profileEntry);
-                return Ok(profileEntry);
-            }
-            return CreatedAtAction("AddProfileEntry", vmProfileEntry);
-        }
+                if (!string.IsNullOrEmpty(vmProfileEntry.Id))
+                {
+                    var existingProfileEntry = await _repository.UpdateProfileEntry(User.GetId(), vmProfileEntry.Id, vmProfileEntry.ConvertToEntity());
+                    if (existingProfileEntry != null)
+                        return Ok(existingProfileEntry);
+                }
 
-        [ActionName("ProfileEntry")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateProfileEntry(VMProfileEntry vmProfileEntry)
-        {
-            var profileEntry = await _repository.UpdateProfileEntry(User.GetId(), vmProfileEntry.Id, vmProfileEntry.ConvertToEntity());
-            if (profileEntry != null)
-                return Ok(vmProfileEntry);
+                var profileEntry = await _repository.AddProfileEntry(vmProfileEntry.ConvertToEntity());
+                if (profileEntry != null)
+                    return CreatedAtAction("ProfileEntry", profileEntry);
+
+            }
 
             return BadRequest();
-
-            //var profileEntry = await _repository.GetProfileEntry(User.GetId(),vmProfileEntry.Id) _context.ProfileEntry.FindAsync(vmProfileEntry.Id);
-            //if (await TryUpdateModelAsync(
-            //    profileEntry,
-            //    "",
-            //    i => i.Title, i => i.Organization, i => i.Location, i => i.StartDate,
-            //    i => i.EndDate, i => i.IsCurrent, i => i.Details, i => i.Category))
-            //{
-            //    try
-            //    {
-            //        await _context.SaveChangesAsync();
-            //    }
-            //    catch (DbUpdateException /* ex */)
-            //    {
-            //        //Log the error (uncomment ex variable name and write a log.)
-            //        ModelState.AddModelError("", "Unable to save changes. " +
-            //            "Try again, and if the problem persists, " +
-            //            "see your system administrator.");
-            //    }
-            //}
-            //return Ok(vmProfileEntry);
         }
 
         // POST: User/Delete/5

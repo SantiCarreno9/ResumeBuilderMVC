@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using NuGet.Protocol.Core.Types;
 using ResumeBuilder.Data;
 using ResumeBuilder.Models;
 using ResumeBuilder.Models.Extensions;
@@ -148,7 +149,7 @@ namespace ResumeBuilder.Controllers
 
         #endregion
 
-        #region BASIC RESUME INFO
+        #region BASIC INFO
 
         [ActionName("ResumeBasicInfo")]
         [HttpGet]
@@ -161,18 +162,28 @@ namespace ResumeBuilder.Controllers
             return Ok(basicInfo);
         }
 
-        [ActionName("ResumeBasicInfoForm")]
+        [ActionName("ResumeBasicInfoView")]
         [HttpGet]
-        public async Task<IActionResult> GetResumeBasicInfoForm(string resumeId, int actionId)
+        public async Task<IActionResult> GetResumeBasicInfoView(string resumeId)
         {
             var basicInfo = await _resumeRepository.GetResumeBasicInfo(User.GetId(), resumeId);
 
-            ViewData["Context"] = "Resume";
-            ViewData["Action"] = (FormActions)actionId;
             ViewData["ResumeId"] = resumeId;
             if (basicInfo != null)
-                return PartialView("/Views/Shared/BasicResumeInfo.cshtml", basicInfo);
-            else return PartialView("/Views/Shared/BasicResumeInfo.cshtml", new ResumeBasicInfo());
+                return PartialView("/Views/Shared/DisplayTemplates/ResumeBasicInfo.cshtml", basicInfo);
+            else return PartialView("/Views/Shared/DisplayTemplates/ResumeBasicInfo.cshtml", new ResumeBasicInfo());
+        }
+
+        [ActionName("ResumeBasicInfoForm")]
+        [HttpGet]
+        public async Task<IActionResult> GetResumeBasicInfoForm(string resumeId)
+        {
+            var basicInfo = await _resumeRepository.GetResumeBasicInfo(User.GetId(), resumeId);
+
+            ViewData["ResumeId"] = resumeId;
+            if (basicInfo != null)
+                return PartialView("/Views/Shared/EditorTemplates/ResumeBasicInfo.cshtml", basicInfo);
+            else return PartialView("/Views/Shared/EditorTemplates/ResumeBasicInfo.cshtml", new ResumeBasicInfo());
         }
 
         [ActionName("ResumeBasicInfo")]
@@ -202,6 +213,22 @@ namespace ResumeBuilder.Controllers
             return Ok(personalInfo.ConvertToViewModel());
         }
 
+        [ActionName("PersonalInfoView")]
+        [HttpGet]
+        public async Task<IActionResult> GetPersonalInfoView(string resumeId)
+        {
+            var personalInfo = await _resumeRepository.GetResumePersonalInfo(User.GetId(), resumeId);
+
+            ViewData["Context"] = "Resume";
+            ViewData["ResumeId"] = resumeId;
+            if (personalInfo == null)
+                return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
+
+            if (personalInfo.AdditionalContactInfo != null)
+                ViewData["Contacts"] = JsonConvert.DeserializeObject<List<AdditionalContact>>(personalInfo.AdditionalContactInfo);
+            return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
+        }
+
         [ActionName("PersonalInfoForm")]
         [HttpGet]
         public async Task<IActionResult> GetPersonalInfoForm(string resumeId, int actionId)
@@ -209,11 +236,10 @@ namespace ResumeBuilder.Controllers
             var personalInfo = await _resumeRepository.GetResumePersonalInfo(User.GetId(), resumeId);
 
             ViewData["Context"] = "Resume";
-            ViewData["Action"] = (FormActions)actionId;
             ViewData["ResumeId"] = resumeId;
             if (personalInfo != null)
-                return PartialView("/Views/Shared/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
-            else return PartialView("/Views/Shared/VMPersonalInfo.cshtml", new PersonalInfo());
+                return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
+            else return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
         }
 
         [ActionName("PersonalInfo")]
@@ -243,7 +269,7 @@ namespace ResumeBuilder.Controllers
             if (profileEntry == null)
                 return NotFound();
 
-            return PartialView("/Views/Shared/DisplayTemplates/VMProfileEntry.cshtml", profileEntry.ConvertToViewModel());
+            return Ok(profileEntry);
         }
 
         [ActionName("ProfileEntries")]
@@ -251,10 +277,18 @@ namespace ResumeBuilder.Controllers
         public async Task<IActionResult> GetProfileEntries(string resumeId, EntryCategory category)
         {
             var profileEntries = await _resumeRepository.GetResumeProfileEntriesByCategory(User.GetId(), resumeId, category);
-            //.AsNoTracking()
-            //.Where(m => m.UserId == User.GetId() && m.Category == category)
-            //.OrderByDescending(x => x.StartDate)
-            //.ToListAsync();
+
+            if (profileEntries == null)
+                return NoContent();
+
+            return Ok(profileEntries);
+        }
+
+        [ActionName("ProfileEntriesView")]
+        [HttpGet]
+        public async Task<IActionResult> GetProfileEntriesView(string resumeId, EntryCategory category)
+        {
+            var profileEntries = await _resumeRepository.GetResumeProfileEntriesByCategory(User.GetId(), resumeId, category);
 
             if (profileEntries == null)
                 return NoContent();
@@ -268,7 +302,7 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("ProfileEntryForm")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntryForm(string? id, string? resumeId, EntryCategory? category, FormActions? actionId)
+        public async Task<IActionResult> GetProfileEntryForm(string? id, string? resumeId, EntryCategory? category)
         {
             ProfileEntry? profileEntry = null;
             if (id != null && resumeId != null)
@@ -284,8 +318,22 @@ namespace ResumeBuilder.Controllers
                 profileEntry.Category = category ?? EntryCategory.WorkExperience;
             }
 
-            ViewData["Action"] = actionId ?? FormActions.Edit;
             return PartialView("/Views/Shared/EditorTemplates/VMProfileEntry.cshtml", profileEntry.ConvertToViewModel());
+        }
+
+        [ActionName("LoadProfileEntriesFromProfile")]
+        [HttpGet]
+        public async Task<IActionResult> LoadProfileEntriesFromProfile(string resumeId)
+        {
+            var profileEntries = await _userRepository.GetProfileEntries(User.GetId());
+            if (profileEntries == null)
+                return NotFound();
+
+            var profileEntry = await _resumeRepository.UpdateResumeProfileEntries(User.GetId(), resumeId, profileEntries.ToList());
+            if (profileEntry == null)
+                return NotFound();
+
+            return Ok(profileEntries);
         }
 
         //[ActionName("ProfileEntry")]
@@ -327,8 +375,18 @@ namespace ResumeBuilder.Controllers
 
         #endregion        
 
-        // GET: Resume/Delete/5
+        // GET: Resume/Delete/5        
         public async Task<IActionResult> Delete(string? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            await _resumeRepository.DeleteResume(User.GetId(), id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePost(string? id)
         {
             if (id == null)
                 return NotFound();
@@ -336,21 +394,6 @@ namespace ResumeBuilder.Controllers
             await _resumeRepository.DeleteResume(User.GetId(), id);
             return NoContent();
         }
-
-        // POST: Resume/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(string id)
-        //{
-        //    var resume = await _resumeRepository.Resumes.FindAsync(id);
-        //    if (resume != null)
-        //    {
-        //        _resumeRepository.Resumes.Remove(resume);
-        //    }
-
-        //    await _resumeRepository.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
 
     }
 }

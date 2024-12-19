@@ -98,7 +98,7 @@ namespace ResumeBuilder.Repositories.Implementations
 
         public async Task<ProfileEntry?> UpdateProfileEntry(string userId, string id, ProfileEntry profileEntry)
         {
-            var existingInfo = await _context.ProfileEntry.FindAsync(userId);
+            var existingInfo = await _context.ProfileEntry.FindAsync(id);
             if (existingInfo == null || !existingInfo.UserId.Equals(userId))
                 return null;
 

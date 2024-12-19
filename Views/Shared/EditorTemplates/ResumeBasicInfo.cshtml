@@ -1,0 +1,72 @@
+﻿@model ResumeBuilder.Models.ResumeBasicInfo
+@{
+    //Editor Version
+    string? resumeId = null;
+    if (ViewData.ContainsKey("ResumeId") && ViewData["ResumeId"] != null)
+        resumeId = ViewData["ResumeId"]!.ToString();
+    string skillsEditor = "skills-text-editor";
+}
+
+<div id="resume-info-form" class="d-flex flex-row">
+    <div style="flex:1">
+        <form asp-action="Create" id="form">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-floating mb-2">
+                <input asp-for="JobTitle" class="form-control editable-field" id="job-title-input" />
+                <label asp-for="JobTitle" class="control-label"></label>
+                <span asp-validation-for="JobTitle" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <textarea asp-for="Description" class="form-control editable-field" id="description-input"></textarea>
+                <label asp-for="Description" class="control-label"></label>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-2">
+                <input asp-for="Skills" id="skills-input" style="display:none" />
+                <label asp-for="Skills" class="form-floating"></label>
+                <br>
+                <br>
+                @await Html.PartialAsync("/Views/Shared/_RichTextEditor.cshtml", new TextEditor { Id = skillsEditor, ParentId = "resume-info-form", FormField = "skills-input" })
+                <span asp-validation-for="Skills" class="text-danger"></span>
+            </div>
+            <div class="mb-2">
+                <div class="form-group">
+                    <button id="submit-btn" type="button" class="btn btn-primary">Save</button>
+                    <button id="cancel-btn" type="button" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .editable-field {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+    }
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        const parent = $('#resume-info-form');
+
+        $(parent).find("#submit-btn").click(function () {
+            const form = $(parent).find("#form");
+            if ($(form).valid()) {
+                var formData = $(form).serialize();
+                $.ajax({
+                    url: '@Url.Action("ResumeBasicInfo")?resumeId=@resumeId',
+                    type: "PUT",
+                    data: formData,
+                    success: function (response) {
+                    },
+                    error: function (request, status, error) {
+                        console.log(request.responseText);
+                    }
+                });
+            }
+        });
+    });
+</script>

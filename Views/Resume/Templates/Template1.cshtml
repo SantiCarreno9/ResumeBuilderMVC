@@ -16,15 +16,18 @@
 <div class="resume">
     <header id="header">
         <!-- resume header with your name and title -->
-        @if(Model!.PersonalInfo!=null){
-            if (Model!.PersonalInfo!.FirstName != null || Model!.PersonalInfo!.LastName!=null){
+        @if (Model!.PersonalInfo != null)
+        {
+            if (Model!.PersonalInfo!.FirstName != null || Model!.PersonalInfo!.LastName != null)
+            {
                 <h1>@Model.PersonalInfo?.FirstName @Model?.PersonalInfo?.LastName</h1>
             }
-            else{
+            else
+            {
                 <h1 class="template-content">[Name]</h1>
             }
         }
-        
+
         <hr>
         @if (Model!.ResumeInfo != null && Model!.ResumeInfo.JobTitle != null)
         {
@@ -66,13 +69,13 @@
                                 {
                                     <a href="@item.Value" target="_blank" rel="noopener noreferrer">
                                         @Html.Raw(@item.GetIcon())
-                                        @item.DisplayName
+                                        @(string.IsNullOrEmpty(item.DisplayName) ? item.Name : item.DisplayName)
                                     </a>
                                 }
                                 else
                                 {
                                     @Html.Raw(@item.GetIcon())
-                                    @item.DisplayName
+                                    @(string.IsNullOrEmpty(item.DisplayName) ? item.Name : item.DisplayName)
                                 }
                             </p>
                         }

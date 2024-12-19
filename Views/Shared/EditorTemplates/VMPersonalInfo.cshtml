@@ -1,7 +1,12 @@
 ﻿@model ResumeBuilder.Models.ViewModels.VMPersonalInfo
 @{
-    string context = ViewData.ContainsKey("Context") ? ViewData["Context"].ToString() : "User";
-    string id = ViewData.ContainsKey("ResumeId") ? ViewData["ResumeId"].ToString() : "";
+    //Editor Version
+    string? context = null;
+    if (ViewData.ContainsKey("Context") && ViewData["Context"] != null)
+        context = ViewData["Context"]!.ToString();
+    string? resumeId = null;
+    if (ViewData.ContainsKey("ResumeId") && ViewData["ResumeId"] != null)
+        resumeId = ViewData["ResumeId"]!.ToString();
 }
 
 <div id="personal-info-form" class="d-flex">
@@ -49,12 +54,15 @@
             </div>
             <div id="additional-contacts-template" style="display:none">
                 <li class="row mb-2 align-items-center d-flex flex-row">
-                    <input type="text" class="form-control-plaintext mx-2" style="flex:1" />
-                    <input type="text" class="form-control editable-field mx-2" style="flex:1" />
-                    <div class="form-floating mb-2 resume-only" style="display:none">
-                        <input type="text" class="form-control editable-field" id="display-name" />
-                        <label for="display-name" class="control-label">Display Name</label>
-                    </div>
+                    <input id="name-input" type="text" class="form-control-plaintext mx-2" style="flex:1" />
+                    <input id="value-input" type="text" class="form-control editable-field mx-2" style="flex:1" />
+                    @if (context!.Equals("Resume"))
+                    {
+                        <div class="form-floating mb-2 resume-only">
+                            <input type="text" class="form-control editable-field" id="display-name-input" />
+                            <label for="display-name" class="control-label">Display Name</label>
+                        </div>
+                    }
                     <button id="delete-btn" type="button" class="btn-close mx-1"></button>
                 </li>
             </div>
@@ -102,7 +110,7 @@
             const form = $(parent).find("form");
             let endpoint = '@Url.Action("PersonalInfo")';
             if ('@context' == 'Resume') {
-                endpoint = endpoint.concat("?resumeId=@id");
+                endpoint = endpoint.concat("?resumeId=@resumeId");
             }
             if ($(form).valid()) {
                 var formData = getFormData($(form));
@@ -143,10 +151,9 @@
             let contacts = JSON.parse('@Html.Raw(Model.AdditionalContactInfo)');
             if(contacts!=null){
                 for (let i = 0; i < contacts.length; i++) {
-                    addAdditionalContact(contacts[i].name, contacts[i].value);
+                    addAdditionalContact(contacts[i].name, contacts[i].value, contacts[i].displayName);
                 }
             }
-            // updateFormState();
         }
 
         function getAdditionalContactsJSON() {
@@ -157,9 +164,15 @@
             if(contactsCount > 1){
                 console.log('contactsCount>1');
                     for (const child of $(additionalContactsList).children()) {
-                    let nameField = $(child).children().eq(0)[0];                    
-                    let valueField = $(child).children().eq(1)[0];                    
-                    myObject[index] = { name: nameField.value, value: valueField.value };
+                    let nameField = $(child).find('#name-input')[0];
+                    let valueField = $(child).find('#value-input')[0];
+                    if('@context'== 'Resume'){
+                        let displayNameField = $(child).find('#display-name-input')[0];
+                        myObject[index] = { name: nameField.value, value: valueField.value, displayName: displayNameField.value };
+                    }
+                    else{
+                        myObject[index] = { name: nameField.value, value: valueField.value };
+                    }
                     index++;
                     if (contactsCount - 1 == index)
                         break;
@@ -169,7 +182,6 @@
         }
 
         function updateContactListOptions(name = null, added = false) {
-            console.log('Name: ' + name);
             if (contacTitleSelect == null)
                 return;
 
@@ -189,7 +201,7 @@
             addAdditionalContact(value);
         }
 
-        function addAdditionalContact(name = null, value = null) {
+        function addAdditionalContact(name = null, value = null, displayName = null) {
             console.log('Name: ' + name + ' Value: ' + value);
             let newContact = additionalContactTemplate.cloneNode(true);
             let dropdown = $(contacTitleSelect).parent();
@@ -200,18 +212,22 @@
             });
 
             if (name != null) {
-                let nameField = $(newContact).children().eq(0)[0];
+                let nameField = $(newContact).find('#name-input')[0];
                 nameField.value = name;
                 if (name == "Other") {
                     nameField.disabled = false;
                 }
             }
             if (value != null) {
-                $(newContact).children().eq(1)[0].value = value;
+                let valueField = $(newContact).find('#value-input')[0];
+                valueField.value = value;
             }
-            // $(newContact).children().last().click(function () {
-            //     deleteAdditionalContact(this)
-            // })
+
+            if (displayName != null) {
+                let displayNameField = $(newContact).find('#display-name-input')[0];
+                if(displayNameField!=null)
+                    displayNameField.value = displayName;
+            }
             updateContactListOptions(name, true);
         }
 

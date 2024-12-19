@@ -162,27 +162,33 @@ namespace ResumeBuilder.Repositories.Implementations
         public async Task<List<ProfileEntry>?> UpdateResumeProfileEntries(string userId, string resumeId, List<ProfileEntry> profileEntries)
         {
             var resume = await _context.Resumes.FindAsync(resumeId);
-            if (resume == null || !resume.UserId.Equals(userId) || resume.ProfileEntries == null)
+            if (resume == null || !resume.UserId.Equals(userId))
                 return null;
 
-            var existingProfileEntries = JsonConvert.DeserializeObject<List<ProfileEntry>>(resume.ProfileEntries);
-            if (existingProfileEntries == null)
-                return null;
-
-            for (int i = 0; i < profileEntries.Count; i++)
+            List<ProfileEntry> allProfileEntries = profileEntries;
+            if (!string.IsNullOrEmpty(resume.ProfileEntries))
             {
-                var existingEntry = existingProfileEntries.FirstOrDefault(x => x.Id.Equals(profileEntries[i].Id));
-                if (existingEntry == null)
-                    existingProfileEntries.Add(profileEntries[i]);
-                else
+                var existingProfileEntries = JsonConvert.DeserializeObject<List<ProfileEntry>>(resume.ProfileEntries);
+                if (existingProfileEntries != null)
                 {
-                    int index = existingProfileEntries.IndexOf(existingEntry);
-                    existingProfileEntries[index] = profileEntries[i];
-                }
+                    for (int i = 0; i < profileEntries.Count; i++)
+                    {
+                        var existingEntry = existingProfileEntries.FirstOrDefault(x => x.Id.Equals(profileEntries[i].Id));
+                        if (existingEntry == null)
+                            existingProfileEntries.Add(profileEntries[i]);
+                        else
+                        {
+                            int index = existingProfileEntries.IndexOf(existingEntry);
+                            existingProfileEntries[index] = profileEntries[i];
+                        }
+                    }
+                    allProfileEntries = existingProfileEntries;
+                }                                
             }
-            resume.ProfileEntries = JsonConvert.SerializeObject(existingProfileEntries);
+
+            resume.ProfileEntries = JsonConvert.SerializeObject(allProfileEntries);
             await _context.SaveChangesAsync();
-            return existingProfileEntries;
+            return allProfileEntries;
         }
 
         public async Task<ProfileEntry?> UpdateResumeProfileEntry(string userId, string resumeId, ProfileEntry profileEntry)

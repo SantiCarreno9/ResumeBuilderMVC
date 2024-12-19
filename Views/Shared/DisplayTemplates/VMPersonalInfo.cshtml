@@ -1,6 +1,14 @@
 ﻿@model ResumeBuilder.Models.ViewModels.VMPersonalInfo
 
 @{
+    //Display Version
+    string? context = null;
+    if (ViewData.ContainsKey("Context") && ViewData["Context"] != null)
+        context = ViewData["Context"]!.ToString();
+    string? resumeId = null;
+    if (ViewData.ContainsKey("ResumeId") && ViewData["ResumeId"] != null)
+        resumeId = ViewData["ResumeId"]!.ToString();
+
     List<AdditionalContact>? contacts = null;
     if (ViewData.ContainsKey("Contacts"))
         contacts = (ViewData["Contacts"] as List<AdditionalContact>);
@@ -37,7 +45,7 @@
                     <div class="text">@item.Value</div>
                 </div>
             }
-        }        
+        }
     </div>
     <div class="text-end">
         <button class="btn-icon" id="edit-btn" type="button" style="font-size:1.5rem;"><i class="fas fa-edit"></i></button>
@@ -62,16 +70,18 @@
     }
 </style>
 
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
 <script type="text/javascript">
 
     $(document).ready(function () {
 
         $("#personal-info").find("#edit-btn").click(function () {
+            let endpoint = '@Url.Action("PersonalInfoForm")';
+            if ('@context' == 'Resume') {
+                endpoint = endpoint.concat("?resumeId=@resumeId");
+            }
             $.ajax({
-                url: '@Url.Action("PersonalInfoForm")',
+                url: endpoint,
                 type: 'GET',
                 success: function (response) {
 

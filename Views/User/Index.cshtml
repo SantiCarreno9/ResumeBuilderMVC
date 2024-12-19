@@ -51,8 +51,7 @@
 
 @section Scripts
 {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    
     <script type="text/javascript">
         $(document).ready(function () {
             // Personal Info
@@ -133,14 +132,14 @@
             const url = new URL(settings.url, window.location.origin); // Parse the URL
             const path = url.pathname; // Extract the path (e.g., /PersonalInfoForm)
 
-            if (path === '@Url.Action("PersonalInfoForm")') {
+            if (path === '@Url.Action("PersonalInfoForm")') {//Load PersonalInfoForm to edit it
                 showContentOnModal(xhr.responseText);
-            } else if (path === '@Url.Action("PersonalInfo")') {
+            } else if (path === '@Url.Action("PersonalInfo")') {//Save changes made on the PersonalInfoForm
                 loadPersonalInfo();
                 hideForm();
-            } else if (path === '@Url.Action("ProfileEntryForm")') {
+            } else if (path === '@Url.Action("ProfileEntryForm")') {//Load ProfileEntryForm to edit it
                 showContentOnModal(xhr.responseText);
-            } else if (path === '@Url.Action("ProfileEntry")') {
+            } else if (path === '@Url.Action("ProfileEntry")') {//Save changes made on the ProfileEntryForm
                 const response = xhr.responseJSON;
                 loadProfileEntries(response.category);
                 hideForm();
@@ -159,7 +158,6 @@
             function hideForm() {
                 $(".btn-close").trigger("click");
             }
-
 
         });
 

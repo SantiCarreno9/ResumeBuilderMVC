@@ -98,10 +98,9 @@
     </div>
 </div>
 
-@section Scripts
-{
+@section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
     <script type="text/javascript">
 
         $(document).ready(function () {
@@ -160,11 +159,10 @@
             loadResumeInfo();
 
             function loadResumeInfo() {
-                const actionId = @((int)FormActions.None);
                 $.ajax({
                     type: 'GET',
-                    url: '@Url.Action("BasicResumeInfoForm")',
-                    data: { resumeId: '@Model.Id', actionId: actionId },
+                    url: '@Url.Action("ResumeBasicInfoView")',
+                    data: { resumeId: '@Model.Id'},
                     success: function (result) {
                         const container = $('#resume-info-placeholder');
                         $(container).empty();
@@ -183,8 +181,8 @@
                 const actionId = @((int)FormActions.None);
                 $.ajax({
                     type: 'GET',
-                    url: '@Url.Action("PersonalInfoForm")',
-                    data: { resumeId: '@Model.Id', actionId: actionId },
+                    url: '@Url.Action("PersonalInfoView")',
+                    data: { resumeId: '@Model.Id' },
                     success: function (result) {
                         const container = $('#personal-info-placeholder');
                         $(container).empty();
@@ -197,25 +195,24 @@
             }
 
             // Profile Entries
+            loadProfileEntries(@((int)EntryCategory.Education));
+            loadProfileEntries(@((int)EntryCategory.WorkExperience));
 
             $("#load-education-btn").click(function () {
                 $.ajax({
-                    url: '@Url.Action("ResumeInfo")?resumeId=@Model.Id',
-                    type: "PUT",
-                    data: originalResumeCopy,
-                    dataType: "json",
+                    url: '@Url.Action("LoadProfileEntriesFromProfile")?resumeId=@Model.Id',
+                    type: "GET",                    
                     success: function (response) {
-                        window.location.replace('@Url.Action("Index")');
+                        getResumePreview();
+                        loadProfileEntries(@((int)EntryCategory.Education));
+                        loadProfileEntries(@((int)EntryCategory.WorkExperience));
                     },
                     error: function (request, status, error) {
                         console.log(request.responseText);
                     }
                 });
             })
-
-            // loadProfileEntries(@((int)EntryCategory.Education));
-            // loadProfileEntries(@((int)EntryCategory.WorkExperience));
-
+            
             $("#add-education").click(function () {
                 openEntryForm(@((int)EntryCategory.Education));
             })
@@ -224,17 +221,16 @@
                 openEntryForm(@((int)EntryCategory.WorkExperience));
             })
 
-            function loadProfileEntries(categoryId) {
-                const actionId = @((int)FormActions.None);
+            function loadProfileEntries(categoryId) {                
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("ProfileEntriesView")',
-                    data: { category: categoryId, actionId: actionId },
+                    data: { resumeId:'@Model.Id', category: categoryId },
                     success: function (result) {
                         let container;
                         if (categoryId == @((int)(EntryCategory.Education)))
-                            container = "#education-list";
-                        else container = "#experience-list";
+                            container = "#education-entries-placeholder";
+                        else container = "#professional-entries-placeholder";
                         $(container).empty();
                         $(container).append(result);
                         const containerJs = $(container)[0];
@@ -248,33 +244,7 @@
                         alert("Error trying to retrieve Entries");
                     }
                 })
-            }
-
-            function loadProfileEntries(categoryId) {
-                const actionId = @((int)FormActions.None);
-                $.ajax({
-                    type: 'GET',
-                    url: '@Url.Action("GetProfileEntries")',
-                    data: { category: categoryId},
-                    success: function (result) {
-                        // let container;
-                        // if (categoryId == @((int)(EntryCategory.Education)))
-                        //     container = "#education-list";
-                        // else container = "#experience-list";
-                        // $(container).empty();
-                        // $(container).append(result);
-                        // const containerJs = $(container)[0];
-                        // let entries = containerJs.getElementsByClassName('profile-entry-container');
-                        // for (let i = 0; i < entries.length; i++) {
-                        //     entries[i].classList.add('card');
-                        //     entries[i].classList.add('mb-2');
-                        // }
-                    },
-                    error: function () {
-                        alert("Error trying to retrieve Entries");
-                    }
-                })
-            }
+            }            
 
             function openEntryForm(categoryId) {
                 const actionId = @((int)FormActions.Create);
@@ -309,29 +279,41 @@
             }
 
             // Request Observer
-
             $(document).ajaxSuccess(function (event, xhr, settings) {
-                if (settings.url.includes('@Url.Action("ProfileEntryForm")')) {
-                    var result = xhr.responseText;
-                    console.log(result);
-                    $(".modal-body").empty();
-                    $(".modal-body").append(result);
-                    $(".modal-body").find("#cancel-btn").click(function () {
-                        hideForm()
-                    });
-                    $("#open-modal-btn").trigger("click");
-                }
-                else if (settings.url.includes('@Url.Action("PersonalInfo")') ||
-                    settings.url.includes('@Url.Action("BasicResumeInfo")')) {
-                    getResumePreview();
-                }
-                else if (settings.url.includes('@Url.Action("ProfileEntry")')) {
-                    var response = xhr.responseJSON;
-                    loadProfileEntries(response.category);
-                    hideForm();
-                    getResumePreview();
-                }
+            const url = new URL(settings.url, window.location.origin); // Parse the URL
+            const path = url.pathname; // Extract the path (e.g., /PersonalInfoForm)
+            if (path === '@Url.Action("PersonalInfoForm")') {//Load PersonalInfoForm to edit it
+                showContentOnModal(xhr.responseText);
+            } else if (path === '@Url.Action("PersonalInfo")') {//Save changes made on the PersonalInfoForm
+                loadPersonalInfo();
+                hideForm();
+                getResumePreview();
+            } else if (path === '@Url.Action("ProfileEntryForm")') {//Load ProfileEntryForm to edit it
+                showContentOnModal(xhr.responseText);
+            } else if (path === '@Url.Action("ProfileEntry")') {//Save changes made on the ProfileEntryForm
+                const response = xhr.responseJSON;
+                loadProfileEntries(response.category);
+                hideForm();
+                getResumePreview();
+            }
+            else if (path === '@Url.Action("ResumeBasicInfoForm")') {//Save changes made on the ProfileEntryForm
+                showContentOnModal(xhr.responseText);
+            }
+            else if (path === '@Url.Action("ResumeBasicInfo")') {//Save changes made on the ProfileEntryForm
+                loadResumeInfo();
+                hideForm();
+                getResumePreview();
+            }
             });
+
+            function showContentOnModal(content){
+                $(".modal-body").empty();
+                $(".modal-body").append(content);
+                $(".modal-body").find("#cancel-btn").click(function () {
+                    hideForm();
+                });
+                $("#open-modal-btn").trigger("click");
+            }
 
             function hideForm() {
                 $(".btn-close").trigger("click");
