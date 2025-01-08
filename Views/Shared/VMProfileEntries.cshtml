@@ -1,9 +1,0 @@
-﻿@model List<ResumeBuilder.Models.ViewModels.VMProfileEntry>
-
-@if (Model != null)
-{
-    @foreach (var item in Model)
-    {
-        @await Html.PartialAsync("/Views/Shared/DisplayTemplates/VMProfileEntry.cshtml", item)
-    }
-}

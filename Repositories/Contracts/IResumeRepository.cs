@@ -12,9 +12,9 @@ namespace ResumeBuilder.Repositories.Contracts
         Task<PersonalInfo?> GetResumePersonalInfo(string userId, string resumeId);
         Task<ProfileEntry?> GetResumeProfileEntry(string userId, string resumeId, string id);
         Task<IEnumerable<ProfileEntry>?> GetResumeProfileEntries(string userId, string resumeId);
-        Task<IEnumerable<ProfileEntry>?> GetResumeProfileEntriesByCategory(string userId, string resumeId, EntryCategory category);
+        Task<IEnumerable<ProfileEntry>?> GetResumeProfileEntriesByCategory(string userId, string resumeId, string category);
 
-        Task<Resume?> AddResume(Resume resume);
+        Task<Resume?> AddResume(Resume resume);        
 
         Task<Resume?> UpdateResume(string userId, string resumeId, Resume resume);
         Task<string?> UpdateResumeName(string userId, string resumeId, string resumeName);

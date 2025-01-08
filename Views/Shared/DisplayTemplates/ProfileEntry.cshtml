@@ -1,4 +1,4 @@
-﻿@model ResumeBuilder.Models.ViewModels.VMProfileEntry
+﻿@model ResumeBuilder.Models.ProfileEntry
 
 @{
     //Display Version
@@ -59,12 +59,10 @@
 
         $(parent).find("#delete-btn").click(function () {
             let endpoint = '@Url.Action("ProfileEntry")';
+            endpoint = endpoint.concat("?id=@Model.Id");
             if ('@context' == 'Resume') {
-                endpoint = endpoint.concat("?id=@Model.Id&resumeId=@resumeId");
-            }
-            else{
-                endpoint = endpoint.concat("?id=@Model.Id");
-            }
+                endpoint = endpoint.concat("&resumeId=@resumeId");
+            }            
             $.ajax({
                 url: endpoint,
                 type: 'DELETE',

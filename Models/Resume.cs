@@ -15,6 +15,10 @@ namespace ResumeBuilder.Models
         [Column(TypeName = "nvarchar(2000)")]
         public string? PersonalInfo { get; set; }
         [Column(TypeName = "nvarchar(4000)")]
-        public string? ProfileEntries { get; set; }        
+        public string? ProfileEntries { get; set; }
+        [Column(TypeName = "nvarchar(1000)")]
+        public string? OrderedCategories { get; set; }
+        [DataType(DataType.DateTime)]        
+        public DateTime? ModifiedAt { get; set; }
     }
 }

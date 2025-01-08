@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_CustomLayout.cshtml";
+    string[] entries = Enum.GetNames(typeof(EntryCategory));
 }
 
 <h1>Your Profile</h1>
@@ -11,25 +12,19 @@
     </div>
     <hr />
     <br />
-    <div class="info-section-title">
-        <h4>Education Info</h4>
-        <button id="add-education" class="btn">
-            <i class="fas fa-plus-circle"></i>
-        </button>
-    </div>
-    <hr />
-    <dl id="education-list" class="row">
-    </dl>
-    <br />
-    <div class="info-section-title">
-        <h4>Work Experience Info</h4>
-        <button id="add-experience" class="btn">
-            <i class="fas fa-plus-circle"></i>
-        </button>
-    </div>
-    <hr />
-    <dl id="experience-list" class="row">
-    </dl>
+    @foreach (var item in entries)
+    {
+        <div class="info-section-title">
+            <h4>@ProfileEntry.GetCategoryName(item)</h4>
+            <button id="add-@item" class="btn">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+        </div>
+        <hr />
+        <dl id="@item-list" class="row">
+        </dl>
+        <br />
+    }
 </div>
 <button id="open-modal-btn" type="button" class="btn btn-primary" style="display:none" data-bs-toggle="modal" data-bs-target="#exampleModal">
     Launch demo modal
@@ -51,14 +46,13 @@
 
 @section Scripts
 {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             // Personal Info
             loadPersonalInfo();
 
             function loadPersonalInfo() {
-                const actionId = @((int)FormActions.None);
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("PersonalInfoView")',
@@ -74,29 +68,22 @@
             }
 
             // Profile Entries
+            const entryCategories = @Html.Raw(Json.Serialize(entries));
 
-            loadProfileEntries(@((int)EntryCategory.Education));
-            loadProfileEntries(@((int)EntryCategory.WorkExperience));
-
-            $("#add-education").click(function () {
-                openEntryForm(@((int)EntryCategory.Education));
+            for(const entry of entryCategories){
+                loadProfileEntries(entry);
+                $("#add-"+entry).click(function () {
+                openEntryForm(entry);
             })
+            }
 
-            $("#add-experience").click(function () {
-                openEntryForm(@((int)EntryCategory.WorkExperience));
-            })
-
-            function loadProfileEntries(categoryId) {
-                const actionId = @((int)FormActions.None);
+            function loadProfileEntries(category) {
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("ProfileEntriesView")',
-                    data: { category: categoryId, actionId: actionId },
+                    data: { category: category },
                     success: function (result) {
-                        let container;
-                        if (categoryId == @((int)(EntryCategory.Education)))
-                            container = "#education-list";
-                        else container = "#experience-list";
+                        const container = "#" + category + "-list";
                         $(container).empty();
                         $(container).append(result);
                         const containerJs = $(container)[0];
@@ -112,12 +99,11 @@
                 })
             }
 
-            function openEntryForm(categoryId) {
-                const actionId = @((int)FormActions.Create);
+            function openEntryForm(category) {
                 $.ajax({
                     url: '@Url.Action("ProfileEntryForm")',
                     type: 'GET',
-                    data: { category: categoryId, actionId: actionId },
+                    data: { category: category },
                     success: function (result) {
                     },
                     error: function () {
@@ -151,7 +137,7 @@
                 $(".modal-body").append(content);
                 $(".modal-body").find("#cancel-btn").click(function () {
                     hideForm();
-                });                
+                });
                 $("#open-modal-btn").trigger("click");
             }
 

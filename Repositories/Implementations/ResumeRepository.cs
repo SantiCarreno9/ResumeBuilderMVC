@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using ResumeBuilder.Data;
 using ResumeBuilder.Models;
-using ResumeBuilder.Models.ViewModels;
 using ResumeBuilder.Repositories.Contracts;
 
 namespace ResumeBuilder.Repositories.Implementations
@@ -33,6 +32,7 @@ namespace ResumeBuilder.Repositories.Implementations
 
         public async Task<Resume?> AddResume(Resume resume)
         {
+            resume.ModifiedAt = DateTime.UtcNow;
             _context.Add(resume);
             await _context.SaveChangesAsync();
             return resume;
@@ -44,6 +44,7 @@ namespace ResumeBuilder.Repositories.Implementations
             if (existingResume == null || !existingResume.UserId.Equals(userId))
                 return null;
 
+            resume.ModifiedAt = DateTime.UtcNow;
             _context.Update(resume);
             await _context.SaveChangesAsync();
             return resume;
@@ -77,6 +78,7 @@ namespace ResumeBuilder.Repositories.Implementations
                 return null;
 
             resume.Name = resumeName;
+            resume.ModifiedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return resumeName;
         }
@@ -98,6 +100,7 @@ namespace ResumeBuilder.Repositories.Implementations
                 return null;
 
             resume.ResumeInfo = JsonConvert.SerializeObject(basicInfo);
+            resume.ModifiedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return basicInfo;
         }
@@ -119,6 +122,7 @@ namespace ResumeBuilder.Repositories.Implementations
                 return null;
 
             resume.PersonalInfo = JsonConvert.SerializeObject(personalInfo);
+            resume.ModifiedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return personalInfo;
         }
@@ -133,7 +137,7 @@ namespace ResumeBuilder.Repositories.Implementations
             return profileEntries;
         }
 
-        public async Task<IEnumerable<ProfileEntry>?> GetResumeProfileEntriesByCategory(string userId, string resumeId, EntryCategory category)
+        public async Task<IEnumerable<ProfileEntry>?> GetResumeProfileEntriesByCategory(string userId, string resumeId, string category)
         {
             var resume = await _context.Resumes.FindAsync(resumeId);
             if (resume == null || !resume.UserId.Equals(userId) || resume.ProfileEntries == null)
@@ -143,7 +147,7 @@ namespace ResumeBuilder.Repositories.Implementations
             if (profileEntries == null)
                 return null;
 
-            return profileEntries.Where(pe => pe.Category == category).OrderByDescending(pe => pe.StartDate);
+            return profileEntries.Where(pe => pe.Category.Equals(category)).OrderByDescending(pe => pe.StartDate);
         }
 
         public async Task<ProfileEntry?> GetResumeProfileEntry(string userId, string resumeId, string id)
@@ -187,6 +191,7 @@ namespace ResumeBuilder.Repositories.Implementations
             }
 
             resume.ProfileEntries = JsonConvert.SerializeObject(allProfileEntries);
+            resume.ModifiedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return allProfileEntries;
         }
@@ -210,6 +215,7 @@ namespace ResumeBuilder.Repositories.Implementations
                 existingProfileEntries[index] = profileEntry;
             }
             resume.ProfileEntries = JsonConvert.SerializeObject(existingProfileEntries);
+            resume.ModifiedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return profileEntry;
         }
@@ -238,6 +244,6 @@ namespace ResumeBuilder.Repositories.Implementations
         {
 
         }
-
+        
     }
 }

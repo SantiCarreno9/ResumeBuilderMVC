@@ -1,14 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using NuGet.Protocol.Core.Types;
-using ResumeBuilder.Data;
 using ResumeBuilder.Models;
 using ResumeBuilder.Models.Extensions;
 using ResumeBuilder.Models.ViewModels;
 using ResumeBuilder.Repositories.Contracts;
-using System.Text.Json;
 
 namespace ResumeBuilder.Controllers
 {
@@ -46,14 +42,13 @@ namespace ResumeBuilder.Controllers
 
             vmResume.Id = Guid.NewGuid().ToString();
             vmResume.ResumeInfo = new();
-            vmResume.PersonalInfo = await _userRepository.GetPersonalInfo(User.GetId());
-            //vmResume.ProfileEntries = await _context.ProfileEntry
-            //    .AsNoTracking()
-            //    .Where(x => x.UserId.Equals(userId))
-            //    .ToListAsync();
+            var personalInfo = await _userRepository.GetPersonalInfo(User.GetId());
+            if (personalInfo != null)
+                vmResume.PersonalInfo = personalInfo.ConvertToViewModel();
 
             var resume = vmResume.ConvertToEntity();
             resume.UserId = userId;
+            resume.OrderedCategories = JsonConvert.SerializeObject(Enum.GetNames(typeof(EntryCategory)));
             await _resumeRepository.AddResume(resume);
 
             return View("ResumeEditor", vmResume);
@@ -87,11 +82,7 @@ namespace ResumeBuilder.Controllers
             var vmResume = resume.ConvertToViewModel();
 
             ViewData["Template"] = "/Views/Resume/Templates/Template" + templateId + ".cshtml";
-            IEnumerable<AdditionalContactResume>? additionalContactInfo = null;
-            if (vmResume.PersonalInfo != null && vmResume.PersonalInfo.AdditionalContactInfo != null)
-                additionalContactInfo = JsonConvert.DeserializeObject<IEnumerable<AdditionalContactResume>>(vmResume.PersonalInfo.AdditionalContactInfo);
 
-            ViewData["AdditionalContactInfo"] = additionalContactInfo;
             return PartialView("/Views/Resume/Templates/Template" + templateId + ".cshtml", vmResume);
         }
 
@@ -169,9 +160,10 @@ namespace ResumeBuilder.Controllers
             var basicInfo = await _resumeRepository.GetResumeBasicInfo(User.GetId(), resumeId);
 
             ViewData["ResumeId"] = resumeId;
-            if (basicInfo != null)
-                return PartialView("/Views/Shared/DisplayTemplates/ResumeBasicInfo.cshtml", basicInfo);
-            else return PartialView("/Views/Shared/DisplayTemplates/ResumeBasicInfo.cshtml", new ResumeBasicInfo());
+            var vmBasicInfo = basicInfo?.ConvertToViewModel();
+            if (vmBasicInfo != null)
+                return PartialView("/Views/Shared/DisplayTemplates/ResumeBasicInfo.cshtml", vmBasicInfo);
+            else return PartialView("/Views/Shared/DisplayTemplates/ResumeBasicInfo.cshtml", new VMResumeBasicInfo());
         }
 
         [ActionName("ResumeBasicInfoForm")]
@@ -181,9 +173,10 @@ namespace ResumeBuilder.Controllers
             var basicInfo = await _resumeRepository.GetResumeBasicInfo(User.GetId(), resumeId);
 
             ViewData["ResumeId"] = resumeId;
-            if (basicInfo != null)
-                return PartialView("/Views/Shared/EditorTemplates/ResumeBasicInfo.cshtml", basicInfo);
-            else return PartialView("/Views/Shared/EditorTemplates/ResumeBasicInfo.cshtml", new ResumeBasicInfo());
+            var vmBasicInfo = basicInfo?.ConvertToViewModel();
+            if (vmBasicInfo != null)
+                return PartialView("/Views/Shared/EditorTemplates/ResumeBasicInfo.cshtml", vmBasicInfo);
+            else return PartialView("/Views/Shared/EditorTemplates/ResumeBasicInfo.cshtml", new VMResumeBasicInfo());
         }
 
         [ActionName("ResumeBasicInfo")]
@@ -274,7 +267,7 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("ProfileEntries")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntries(string resumeId, EntryCategory category)
+        public async Task<IActionResult> GetProfileEntries(string resumeId, string category)
         {
             var profileEntries = await _resumeRepository.GetResumeProfileEntriesByCategory(User.GetId(), resumeId, category);
 
@@ -286,23 +279,21 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("ProfileEntriesView")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntriesView(string resumeId, EntryCategory category)
+        public async Task<IActionResult> GetProfileEntriesView(string resumeId, string category)
         {
             var profileEntries = await _resumeRepository.GetResumeProfileEntriesByCategory(User.GetId(), resumeId, category);
 
             if (profileEntries == null)
                 return NoContent();
 
-            List<VMProfileEntry> vMProfileEntries = new();
-            foreach (var profileEntry in profileEntries)
-                vMProfileEntries.Add(profileEntry.ConvertToViewModel());
-
-            return PartialView("/Views/Shared/VMProfileEntries.cshtml", vMProfileEntries);
+            ViewData["Context"] = "Resume";
+            ViewData["ResumeId"] = resumeId;
+            return PartialView("/Views/Shared/ProfileEntries.cshtml", profileEntries.ToList());
         }
 
         [ActionName("ProfileEntryForm")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntryForm(string? id, string? resumeId, EntryCategory? category)
+        public async Task<IActionResult> GetProfileEntryForm(string? id, string? resumeId, string? category)
         {
             ProfileEntry? profileEntry = null;
             if (id != null && resumeId != null)
@@ -315,17 +306,19 @@ namespace ResumeBuilder.Controllers
             {
                 profileEntry = new ProfileEntry();
                 profileEntry.Id = Guid.NewGuid().ToString();
-                profileEntry.Category = category ?? EntryCategory.WorkExperience;
+                profileEntry.Category = category ?? Enum.GetName(EntryCategory.WorkExperience);
             }
 
-            return PartialView("/Views/Shared/EditorTemplates/VMProfileEntry.cshtml", profileEntry.ConvertToViewModel());
+            ViewData["Context"] = "Resume";
+            ViewData["ResumeId"] = resumeId;
+            return PartialView("/Views/Shared/EditorTemplates/ProfileEntry.cshtml", profileEntry);
         }
 
         [ActionName("LoadProfileEntriesFromProfile")]
         [HttpGet]
-        public async Task<IActionResult> LoadProfileEntriesFromProfile(string resumeId)
+        public async Task<IActionResult> LoadProfileEntriesFromProfile(string resumeId, string category)
         {
-            var profileEntries = await _userRepository.GetProfileEntries(User.GetId());
+            var profileEntries = await _userRepository.GetProfileEntriesByCategory(User.GetId(), category);
             if (profileEntries == null)
                 return NotFound();
 
@@ -336,28 +329,24 @@ namespace ResumeBuilder.Controllers
             return Ok(profileEntries);
         }
 
-        //[ActionName("ProfileEntry")]
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> AddProfileEntry(VMProfileEntry vmProfileEntry)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var profileEntry = vmProfileEntry.ConvertToEntity();
-        //        profileEntry.UserId = User.GetId();
-        //        _resumeRepository.Add(profileEntry);
-        //        await _resumeRepository.SaveChangesAsync();
-        //        return Ok(profileEntry);
-        //    }
-        //    //return PartialView("/Views/Shared/VMProfileEntry.cshtml", vmProfileEntry);
-        //    return CreatedAtAction("AddProfileEntry", vmProfileEntry);
-        //}
+        [ActionName("ProfileEntry")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrAddProfileEntry(string resumeId, ProfileEntry vmProfileEntry)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingProfileEntry = await _resumeRepository.UpdateResumeProfileEntry(User.GetId(), resumeId, vmProfileEntry);
+                if (existingProfileEntry != null)
+                    return Ok(existingProfileEntry);
+            }
+            return BadRequest();
+        }
 
         [ActionName("ProfileEntry")]
         [HttpPut]
-        public async Task<IActionResult> UpdateProfileEntry(string resumeId, VMProfileEntry vmProfileEntry)
+        public async Task<IActionResult> UpdateProfileEntry(string resumeId, ProfileEntry vmProfileEntry)
         {
-            var profileEntry = await _resumeRepository.UpdateResumeProfileEntry(User.GetId(), resumeId, vmProfileEntry.ConvertToEntity());
+            var profileEntry = await _resumeRepository.UpdateResumeProfileEntry(User.GetId(), resumeId, vmProfileEntry);
             if (profileEntry == null)
                 return NotFound();
 

@@ -9,9 +9,7 @@
     if (ViewData.ContainsKey("ResumeId") && ViewData["ResumeId"] != null)
         resumeId = ViewData["ResumeId"]!.ToString();
 
-    List<AdditionalContact>? contacts = null;
-    if (ViewData.ContainsKey("Contacts"))
-        contacts = (ViewData["Contacts"] as List<AdditionalContact>);
+    List<AdditionalContact>? contacts = Model.Contacts;    
 }
 
 <div id="personal-info" class="d-flex flex-row">

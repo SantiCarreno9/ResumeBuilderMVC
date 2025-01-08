@@ -37,14 +37,14 @@ namespace ResumeBuilder.Repositories.Implementations
             var existingInfo = await _context.PersonalInfo.FindAsync(userId);
             if (existingInfo == null)
                 return null;
-            
+
             existingInfo.FirstName = personalInfo.FirstName;
             existingInfo.LastName = personalInfo.LastName;
             existingInfo.Address = personalInfo.Address;
             existingInfo.Email = personalInfo.Email;
             existingInfo.AdditionalContactInfo = personalInfo.AdditionalContactInfo;
             existingInfo.PhoneNumber = personalInfo.PhoneNumber;
-                        
+
             await _context.SaveChangesAsync();
             return existingInfo;
         }
@@ -73,9 +73,9 @@ namespace ResumeBuilder.Repositories.Implementations
             return profileEntries.OrderByDescending(x => x.StartDate);
         }
 
-        public async Task<IEnumerable<ProfileEntry>?> GetProfileEntriesByCategory(string userId, EntryCategory entryCategory)
+        public async Task<IEnumerable<ProfileEntry>?> GetProfileEntriesByCategory(string userId, string entryCategory)
         {
-            var profileEntries = _context.ProfileEntry.Where(pe => pe.UserId!.Equals(userId) && pe.Category == entryCategory).AsNoTracking();
+            var profileEntries = _context.ProfileEntry.Where(pe => pe.UserId!.Equals(userId) && pe.Category.Equals(entryCategory)).AsNoTracking();
             if (profileEntries == null)
                 return null;
             return profileEntries.OrderByDescending(x => x.StartDate);
@@ -102,7 +102,15 @@ namespace ResumeBuilder.Repositories.Implementations
             if (existingInfo == null || !existingInfo.UserId.Equals(userId))
                 return null;
 
-            _context.Update(profileEntry);
+            existingInfo.Location = profileEntry.Location;
+            existingInfo.EndDate = profileEntry.EndDate;
+            existingInfo.StartDate = profileEntry.StartDate;
+            existingInfo.Title = profileEntry.Title;
+            existingInfo.Organization = profileEntry.Organization;
+            existingInfo.IsCurrent = profileEntry.IsCurrent;
+            existingInfo.Category = profileEntry.Category;
+            existingInfo.Details = profileEntry.Details;
+                        
             await _context.SaveChangesAsync();
             return profileEntry;
         }
@@ -125,6 +133,6 @@ namespace ResumeBuilder.Repositories.Implementations
 
         }
 
-        
+
     }
 }

@@ -31,35 +31,13 @@ namespace ResumeBuilder.Models.Extensions
             };
         }
 
-        public static ProfileEntry ConvertToEntity(this VMProfileEntry vMProfileEntry)
+        public static VMResumeBasicInfo ConvertToViewModel(this ResumeBasicInfo resumeBasicInfo)
         {
-            return new ProfileEntry
+            return new VMResumeBasicInfo
             {
-                Id = vMProfileEntry.Id,
-                Title = vMProfileEntry.Title,
-                Organization = vMProfileEntry.Organization,
-                StartDate = vMProfileEntry.StartDate,
-                EndDate = vMProfileEntry.EndDate,
-                IsCurrent = vMProfileEntry.IsCurrent,
-                Category = vMProfileEntry.Category,
-                Details = vMProfileEntry.Details,
-                Location = vMProfileEntry.Location
-            };
-        }
-
-        public static VMProfileEntry ConvertToViewModel(this ProfileEntry profileEntry)
-        {
-            return new VMProfileEntry
-            {
-                Id = profileEntry.Id,
-                Title = profileEntry.Title,
-                Organization = profileEntry.Organization,
-                StartDate = profileEntry.StartDate,
-                EndDate = profileEntry.EndDate,
-                IsCurrent = profileEntry.IsCurrent,
-                Category = profileEntry.Category,
-                Details = profileEntry.Details,
-                Location = profileEntry.Location
+                JobTitle = resumeBasicInfo.JobTitle,
+                Description = resumeBasicInfo.Description,
+                Skills = resumeBasicInfo.Skills
             };
         }
 
@@ -70,7 +48,9 @@ namespace ResumeBuilder.Models.Extensions
                 Id = vmResume.Id,
                 ResumeInfo = JsonSerializer.Serialize(vmResume.ResumeInfo),
                 PersonalInfo = JsonSerializer.Serialize(vmResume.PersonalInfo),
-                ProfileEntries = JsonSerializer.Serialize(vmResume.ProfileEntries)
+                ProfileEntries = JsonSerializer.Serialize(vmResume.ProfileEntries),
+                ModifiedAt = vmResume.ModifiedAt,
+                OrderedCategories = vmResume.OrderedCategories,
             };
         }
 
@@ -79,11 +59,13 @@ namespace ResumeBuilder.Models.Extensions
             return new VMResume
             {
                 Id = resume.Id,
-                ResumeInfo = resume.ResumeInfo != null ? JsonSerializer.Deserialize<ResumeBasicInfo>(resume.ResumeInfo) : new ResumeBasicInfo(),
-                PersonalInfo = resume.PersonalInfo != null ? JsonSerializer.Deserialize<PersonalInfo>(resume.PersonalInfo) : new PersonalInfo(),
+                ResumeInfo = resume.ResumeInfo != null ? JsonSerializer.Deserialize<VMResumeBasicInfo>(resume.ResumeInfo) : new VMResumeBasicInfo(),
+                PersonalInfo = resume.PersonalInfo != null ? JsonSerializer.Deserialize<VMPersonalInfo>(resume.PersonalInfo) : new VMPersonalInfo(),
                 ProfileEntries = resume.ProfileEntries != null ? JsonSerializer.Deserialize<List<ProfileEntry>>(resume.ProfileEntries) : new List<ProfileEntry>(),
+                ModifiedAt = resume.ModifiedAt,
+                OrderedCategories = resume.OrderedCategories,
             };
         }
-        
+
     }
 }

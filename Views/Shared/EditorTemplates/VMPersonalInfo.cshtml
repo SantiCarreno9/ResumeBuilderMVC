@@ -54,7 +54,7 @@
             </div>
             <div id="additional-contacts-template" style="display:none">
                 <li class="row mb-2 align-items-center d-flex flex-row">
-                    <input id="name-input" type="text" class="form-control-plaintext mx-2" style="flex:1" />
+                    <input id="name-input" type="text" class="form-control-plaintext mx-2" style="flex:0.3" />
                     <input id="value-input" type="text" class="form-control editable-field mx-2" style="flex:1" />
                     @if (context!.Equals("Resume"))
                     {
@@ -96,13 +96,7 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        const parent = $("#personal-info-form");
-        // ---------- Additional Contacts Logic ----------
-        const additionalContactsList = $('#additional-contacts-list');
-        const additionalContactTemplate = $("#additional-contacts-template")[0].firstElementChild;
-        const contacTitleSelect = $("#contact-title-select");
-
-        loadContacts();
+        const parent = $("#personal-info-form");        
 
         //Initialization
 
@@ -128,6 +122,13 @@
             }
         });
 
+        // ---------- Additional Contacts Logic ----------
+        const additionalContactsList = $('#additional-contacts-list');
+        const additionalContactTemplate = $("#additional-contacts-template")[0].firstElementChild;
+        const contacTitleSelect = $("#contact-title-select");
+
+        loadContacts();
+
         $(contacTitleSelect).on('change', function () {
             setContactFromDropdown(contacTitleSelect[0]);
         });
@@ -142,8 +143,6 @@
 
             return indexed_array;
         }
-
-        // ---------- Additional Contacts Logic ----------
 
         function loadContacts() {
             if('@(Model.AdditionalContactInfo == null)'=='True')

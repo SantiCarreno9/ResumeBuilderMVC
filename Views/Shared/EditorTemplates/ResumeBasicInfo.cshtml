@@ -1,10 +1,9 @@
-﻿@model ResumeBuilder.Models.ResumeBasicInfo
+﻿@model ResumeBuilder.Models.ViewModels.VMResumeBasicInfo
 @{
     //Editor Version
     string? resumeId = null;
     if (ViewData.ContainsKey("ResumeId") && ViewData["ResumeId"] != null)
         resumeId = ViewData["ResumeId"]!.ToString();
-    string skillsEditor = "skills-text-editor";
 }
 
 <div id="resume-info-form" class="d-flex flex-row">
@@ -21,15 +20,30 @@
                 <label asp-for="Description" class="control-label"></label>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-floating mb-2">
-                <input asp-for="Skills" id="skills-input" style="display:none" />
-                <label asp-for="Skills" class="form-floating"></label>
-                <br>
-                <br>
-                @await Html.PartialAsync("/Views/Shared/_RichTextEditor.cshtml", new TextEditor { Id = skillsEditor, ParentId = "resume-info-form", FormField = "skills-input" })
-                <span asp-validation-for="Skills" class="text-danger"></span>
+            <div class="px-2" id="skills-list">
+                <h5>Skills</h5>
+                <div id="technical-skills-list" class="mb-2">
+                    <div class="d-flex flex-row align-items-center">
+                        <h6>Technical Skills</h6>
+                        <button id="add-technical-skill-btn" class="btn" type="button">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="soft-skills-list" class="mb-2">
+                    <div class="d-flex flex-row align-items-center">
+                        <h6>Soft Skills</h6>
+                        <button id="add-soft-skill-btn" class="btn" type="button">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="skill-template" class="flex-row align-items-center" style="display:none">
+                    <input id="skill-input" class="form-control" type="text" />
+                    <button id="delete-btn" class="btn-close" type="button"></button>
+                </div>
             </div>
-            <div class="mb-2">
+            <div class="m-3">
                 <div class="form-group">
                     <button id="submit-btn" type="button" class="btn btn-primary">Save</button>
                     <button id="cancel-btn" type="button" class="btn btn-secondary">Cancel</button>
@@ -54,8 +68,9 @@
 
         $(parent).find("#submit-btn").click(function () {
             const form = $(parent).find("#form");
-            if ($(form).valid()) {
-                var formData = $(form).serialize();
+            if ($(form).valid()) {                
+                var formData = getFormData($(form));
+                formData['Skills'] = getSkillsJSON();                                
                 $.ajax({
                     url: '@Url.Action("ResumeBasicInfo")?resumeId=@resumeId',
                     type: "PUT",
@@ -68,5 +83,98 @@
                 });
             }
         });
+
+        // ---------- Skills Logic ----------
+        const skillTemplate = $('#skill-template')[0];
+
+        loadSkills();
+
+        //Initialization
+
+        $(parent).find("#add-technical-skill-btn").click(function () {
+            addSkill(null, $('#technical-skills-list'));
+        });
+
+        $(parent).find("#add-soft-skill-btn").click(function () {
+            addSkill(null, $('#soft-skills-list'));
+        });
+
+        function getFormData(form) {
+            var unindexed_array = $(form).serializeArray();
+            var indexed_array = {};
+
+            $.map(unindexed_array, function (n, i) {
+                indexed_array[n['name']] = n['value'];
+            });
+
+            return indexed_array;
+        }
+
+        function loadSkills() {
+            if('@(Model.Skills == null)'=='True')
+                return;
+            let skills = JSON.parse('@Html.Raw(Model.Skills)');
+            if(skills!=null){
+                if(skills.technicalSkills!=null)
+                {
+                    for (let i = 0; i < skills.technicalSkills.length; i++) {
+                        addSkill(skills.technicalSkills[i], $('#technical-skills-list'));
+                    }
+                }
+                if(skills.softSkills!=null)
+                {
+                    for (let i = 0; i < skills.softSkills.length; i++) {
+                        addSkill(skills.softSkills[i], $('#soft-skills-list'));
+                    }
+                }
+            }
+        }
+
+        function getSkillsJSON() {
+            var myObject ={
+                "technicalSkills":[],
+                "softSkills":[]
+            };
+            let index = 0;
+            let technicalSkills = $('#technical-skills-list :input[type=text]');
+            let softSkills = $('#soft-skills-list :input[type=text]');
+
+            if(technicalSkills!=null)
+            {
+                for (const skill of technicalSkills) {
+                    myObject.technicalSkills[index]=skill.value;
+                    index++;                    
+                }                
+            }
+            index=0;
+            if(softSkills!=null)
+            {
+                for (const skill of softSkills) {
+                    myObject.softSkills[index]=skill.value;
+                    index++;
+                }
+            }
+
+            return JSON.stringify(myObject);
+        }
+
+        function addSkill(skill = null, container = null) {            
+            let newSkill = skillTemplate.cloneNode(true);
+            newSkill.style.display="flex";
+
+            $(container).append(newSkill);
+            $(newSkill).find("#delete-btn").click(function () {
+                    deleteSkill(newSkill);
+            });
+
+            if (skill != null) {
+                let skillField = $(newSkill).find('#skill-input')[0];
+                skillField.value = skill;
+            }
+        }
+
+        function deleteSkill(skill) {
+            skill.remove();
+        }
     });
 </script>

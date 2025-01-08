@@ -1,0 +1,9 @@
+﻿@model List<ResumeBuilder.Models.ProfileEntry>
+
+@if (Model != null)
+{
+    @foreach (var item in Model)
+    {
+        @await Html.PartialAsync("/Views/Shared/DisplayTemplates/ProfileEntry.cshtml", item)
+    }
+}

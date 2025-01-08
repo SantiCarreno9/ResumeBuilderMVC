@@ -1,4 +1,4 @@
-﻿@model ResumeBuilder.Models.ResumeBasicInfo
+﻿@model ResumeBuilder.Models.ViewModels.VMResumeBasicInfo
 @{
     //Display Version
     string? resumeId = null;
@@ -14,7 +14,33 @@
         </div>
         <div class="custom-section">
             <div class="title">Skills</div>
-            <div class="text">@Html.Raw(Model.Skills)</div>
+            @if (Model.Skills!=null)
+            {
+                var skills = Model.SkillsObject;
+                if (skills != null)
+                {
+                    if (skills.TechnicalSkills != null && skills.TechnicalSkills.Length > 0)
+                    {
+                        <div class="sub-title">Technical Skills</div>
+                        <ul>
+                            @foreach (var skill in skills.TechnicalSkills)
+                            {
+                                <li>@skill</li>
+                            }
+                        </ul>
+                    }
+                    if (skills.SoftSkills != null && skills.SoftSkills.Length > 0)
+                    {
+                        <div class="sub-title">Soft Skills</div>
+                        <ul>
+                            @foreach (var skill in skills.SoftSkills)
+                            {
+                                <li>@skill</li>
+                            }
+                        </ul>
+                    }
+                }
+            }
         </div>
         <div class="custom-section">
             <div class="title">Description</div>
@@ -33,6 +59,10 @@
 
     .title {
         font-weight: 600;
+    }
+
+    .sub-title{
+        font-weight:500;
     }
 
     .text {

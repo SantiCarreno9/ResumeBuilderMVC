@@ -4,8 +4,10 @@
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public ResumeBasicInfo? ResumeInfo { get; set; }
-        public PersonalInfo? PersonalInfo { get; set; }
+        public VMResumeBasicInfo? ResumeInfo { get; set; }
+        public VMPersonalInfo? PersonalInfo { get; set; }
         public List<ProfileEntry>? ProfileEntries { get; set; }
+        public string? OrderedCategories { get; set; }
+        public DateTime? ModifiedAt { get; set; }
     }
 }

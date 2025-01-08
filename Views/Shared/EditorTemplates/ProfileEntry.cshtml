@@ -1,7 +1,13 @@
-﻿@model ResumeBuilder.Models.ViewModels.VMProfileEntry
+﻿@model ResumeBuilder.Models.ProfileEntry
 @{
     string detailsEditor = "details-text-editor";
-    // string context = @ViewData["Context"].ToString();
+    //Editor Version
+    string? context = null;
+    if (ViewData.ContainsKey("Context") && ViewData["Context"] != null)
+        context = ViewData["Context"]!.ToString();
+    string? resumeId = null;
+    if (ViewData.ContainsKey("ResumeId") && ViewData["ResumeId"] != null)
+        resumeId = ViewData["ResumeId"]!.ToString();
 }
 
 <div id="profile-entry-form-@(Model.Id)" class="profile-entry-container d-flex flex-row">
@@ -81,11 +87,15 @@
         });
 
         $(parent).find("#submit-btn").click(function () {
+            let endpoint = '@Url.Action("ProfileEntry")';
+            if ('@context' == 'Resume') {
+                endpoint = endpoint.concat("?resumeId=@resumeId");
+            }            
             const form = $(parent).find("form");
             if ($(form).valid()) {
                 var formData = $(form).serialize();
                 $.ajax({
-                    url: '@Url.Action("ProfileEntry")',
+                    url: endpoint,
                     type: 'POST',
                     data: formData,
                     success: function (response) {

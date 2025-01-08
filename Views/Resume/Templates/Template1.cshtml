@@ -9,6 +9,16 @@
         string endDateText = endDate.HasValue ? endDate.Value.ToString("MMM yyyy") : "Present";
         return startDate + " - " + endDate;
     }
+
+    string[]? orderedCategories = null;
+    if (Model.OrderedCategories != null)
+        orderedCategories = (string[]?)(ViewData["OrderedCategories"]);
+    if (orderedCategories == null)
+        orderedCategories = Enum.GetNames(typeof(EntryCategory));
+
+    var skills = Model.ResumeInfo?.SkillsObject;
+    var contacts = Model.PersonalInfo?.Contacts;
+    var educationEntries = Model.ProfileEntries?.Where(x => !string.IsNullOrEmpty(x.Category) && x.Category.Equals(Enum.GetName(EntryCategory.Education)));
 }
 @if (Model == null)
     return;
@@ -46,10 +56,13 @@
                 <h2>CONTACT</h2>
                 <br>
                 <!-- PHONE NUMBER -->
-                <p>
-                    <i class="fas fa-phone" aria-hidden="true"></i>
-                    @Model?.PersonalInfo?.PhoneNumber
-                </p>
+                @if(Model.PersonalInfo?.PhoneNumber!=null)
+                {
+                    <p>
+                        <i class="fas fa-phone" aria-hidden="true"></i>
+                        @Model?.PersonalInfo?.PhoneNumber
+                    </p>
+                }                
                 <!-- EMAIL -->
                 <p style="word-wrap:anywhere">
                     <a href="mailto:@Model?.PersonalInfo?.Email" target="_blank" rel="noopener noreferrer">
@@ -57,86 +70,72 @@
                         @Model?.PersonalInfo?.Email
                     </a>
                 </p>
-                @if (ViewData["AdditionalContactInfo"] != null)
+                @if (contacts != null)
                 {
-                    var contacts = (List<AdditionalContactResume>)ViewData["AdditionalContactInfo"];
-                    if (contacts != null)
+                    @foreach (var item in contacts)
                     {
-                        @foreach (var item in contacts)
-                        {
-                            <p>
-                                @if (item.IsHyperlink)
-                                {
-                                    <a href="@item.Value" target="_blank" rel="noopener noreferrer">
-                                        @Html.Raw(@item.GetIcon())
-                                        @(string.IsNullOrEmpty(item.DisplayName) ? item.Name : item.DisplayName)
-                                    </a>
-                                }
-                                else
-                                {
+                        <p>
+                            @if (item.IsHyperlink)
+                            {
+                                <a href="@item.Value" target="_blank" rel="noopener noreferrer">
                                     @Html.Raw(@item.GetIcon())
                                     @(string.IsNullOrEmpty(item.DisplayName) ? item.Name : item.DisplayName)
-                                }
-                            </p>
-                        }
+                                </a>
+                            }
+                            else
+                            {
+                                @Html.Raw(@item.GetIcon())
+                                @(string.IsNullOrEmpty(item.DisplayName) ? item.Name : item.DisplayName)
+                            }
+                        </p>
                     }
                 }
-                <!-- LINKEDIN -->
-                @*  <p>
-                <a href="@Model?.PersonalInfo?.LinkedInURL" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-linkedin" aria-hidden="true"></i>
-                @Model?.PersonalInfo?.FirstName
-                </a>
-                </p>
-                <!-- GITHUB -->
-                @if (Model?.PersonalInfo?.GitHubAccount != null)
-                {
-                <p>
-                <a href="https://github.com/@Model?.PersonalInfo?.GitHubAccount" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-github" aria-hidden="true"></i>
-                @Model?.PersonalInfo?.GitHubAccount
-                </a>
-                </p>
-                }
-                <!-- PORTFOLIO -->
-                @if (@Model?.PersonalInfo?.WebsiteURL != null)
-                {
-                <p>
-                <a href="@Model?.PersonalInfo.WebsiteURL" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-dev" aria-hidden="true"></i>
-                Website
-                </a>
-                </p>
-                } *@
-
             </section>
             <section>
-                @if (Model?.ResumeInfo?.Skills != null)
+                @if (skills != null)
                 {
                     <h2>SKILLS</h2>
-                    @Html.Raw(Model?.ResumeInfo?.Skills)
+                    if (skills.TechnicalSkills != null && skills.TechnicalSkills.Length > 0)
+                    {
+                        <h3>Technical Skills</h3>
+                        <ul>
+                            @foreach (var skill in skills.TechnicalSkills)
+                            {
+                                <li>@skill</li>
+                            }
+                        </ul>
+                    }
+                    if (skills.SoftSkills != null && skills.SoftSkills.Length > 0)
+                    {
+                        <h3>Soft Skills</h3>
+                        <ul>
+                            @foreach (var skill in skills.SoftSkills)
+                            {
+                                <li>@skill</li>
+                            }
+                        </ul>
+                    }
                 }
             </section>
 
-            <section>
-                <h2>EDUCATION</h2>
-                <br>
-                @if (Model?.ProfileEntries != null)
-                {
-                    @foreach (var item in Model?.ProfileEntries)
+            @if (educationEntries != null && educationEntries.Count()>0)
+            {
+                <section>
+                    <h2>EDUCATION</h2>
+                    <br>
+                    @foreach (var item in educationEntries)
                     {
                         <h3>@item.Title</h3>
                         <h4>@item.Organization</h4>
                         <h4>@(GetDates(item.StartDate, item.EndDate))</h4>
+                        @if (item.Details != null)
+                        {
+                            <h4>@Html.Raw(item.Details)</h4>
+                        }
                         <br>
                     }
-                }
-            </section>
-
-            @* @if (educationItems != null)
-            {
-            <Education Items="educationItems" />
-            } *@
+                </section>
+            }
             <!-- OPTIONAL -->
             @* <section>
             <h2>ACHIEVEMENTS</h2>
@@ -145,26 +144,37 @@
             </section> *@
         </article>
         <article id="mainRight">
-            <section>
-                @* @if (!string.IsNullOrEmpty(basicInfo.Description))
+            @if (!string.IsNullOrEmpty(Model?.ResumeInfo?.Description))
+            {
+                <section>
+                    <h2>About</h2>
+                    <!-- about you -->
+                    <p>@Model?.ResumeInfo?.Description</p>
+                </section>
+            }
+            @if (orderedCategories != null)
+            {
+                @foreach (var item in orderedCategories)
                 {
-                <h2>ABOUT</h2>
-                <!-- about you -->
-                <p>@basicInfo.Description</p>
-                } *@
-            </section>
-            @*    @if (experienceItems != null)
-            {
-            <Experience Title="EXPERIENCE" Items="experienceItems" />
-            } *@
-            @* @if (projectItems != null)
-            {
-            <Experience Title="PROJECTS" Items="@projectItems" />
-            } *@
-            @* @if (projectItems != null)
-            {
-            <Experience Title="PROJECTS" Items="@projectItems" />
-            } *@
+                    if (item.Equals("Education"))
+                        continue;
+                    var entries = Model.ProfileEntries?.Where(x => !string.IsNullOrEmpty(x.Category) && x.Category.Equals(item));
+                    if (entries != null && entries.Count() > 0)
+                    {
+                        <section>
+                            <h2>@ProfileEntry.GetCategoryName(item)</h2>
+                            <br>
+                            @foreach (var entry in entries)
+                            {
+                                <h3>@entry.Title</h3>
+                                <h4>@entry.Organization</h4>
+                                <h4>@(GetDates(entry.StartDate, entry.EndDate))</h4>
+                                <br>
+                            }
+                        </section>
+                    }
+                }
+            }
         </article>
     </main>
 </div>

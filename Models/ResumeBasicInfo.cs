@@ -8,7 +8,7 @@ namespace ResumeBuilder.Models
         public string? JobTitle { get; set; }
         [Column(TypeName = "nvarchar(200)")]
         public string? Description { get; set; }
-        [Column(TypeName = "nvarchar(500)")]
+        [Column(TypeName = "nvarchar(4000)")]
         public string? Skills { get; set; }
     }
 }

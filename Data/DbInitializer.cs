@@ -1,4 +1,5 @@
-﻿using ResumeBuilder.Models;
+﻿using Newtonsoft.Json;
+using ResumeBuilder.Models;
 
 namespace ResumeBuilder.Data
 {
@@ -7,8 +8,8 @@ namespace ResumeBuilder.Data
         public static void Initialize(ApplicationDbContext context)
         {
             context.Database.EnsureCreated();
-            //return;
-            //if (context.Accounts.Any())
+            return;
+            //if (!context.Users.Any())
             //{
             //    return;
             //}
@@ -30,7 +31,7 @@ namespace ResumeBuilder.Data
             //context.SaveChanges();
 
             //int accountId = context.Accounts.Single(i => i.Email.Equals("santiago.carreno05@gmail.com")).Id;
-            string userId = "";                       
+            string userId = "";
 
             var personalInfo = new PersonalInfo[]
             {
@@ -41,7 +42,7 @@ namespace ResumeBuilder.Data
                     LastName="Carreño",
                     Email="santiago.carreno05@gmail.com",
                     PhoneNumber="437-661-2248",
-                    Address="775 Midland Avenue, Scarborough, ON M1K 4E5",   
+                    Address="775 Midland Avenue, Scarborough, ON M1K 4E5",                    
                     //AdditionalContactInfo =
                     //LinkedInURL="https://www.linkedin.com/in/santiago-felipe-carreno-pardo/",
                     //WebsiteURL="https://santicarreno9.github.io/PortfolioWebsite/",
@@ -55,13 +56,13 @@ namespace ResumeBuilder.Data
             }
 
             context.SaveChanges();
-            
+
             var profileEntries = new ProfileEntry[]
             {
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=EntryCategory.Education,
+                    Category=Enum.GetName(EntryCategory.Education),
                     Title= "Game Programming",
                     Organization= "Centennial College",
                     Location= "Toronto, Ontario, Canada",
@@ -72,7 +73,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=EntryCategory.Education,
+                    Category=Enum.GetName(EntryCategory.Education),
                     Title= "Bachelor of Mechatronics Engineering",
                     Organization= "Universidad Militar Nueva Granada",
                     Location= "Bogotá, Colombia",
@@ -83,7 +84,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=EntryCategory.WorkExperience,
+                    Category=Enum.GetName(EntryCategory.WorkExperience),
                     Title= "VR Developer",
                     Organization= "Somnium Space",
                     Location= "Prague, Czech Republic",
@@ -94,7 +95,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=EntryCategory.WorkExperience,
+                    Category=Enum.GetName(EntryCategory.WorkExperience),
                     Title= "Unity Developer",
                     Organization= "Consultoria GP S.A.S",
                     Location= "Medellín, Colombia",
@@ -105,7 +106,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=EntryCategory.WorkExperience,
+                    Category=Enum.GetName(EntryCategory.WorkExperience),
                     Title= "VR Developer",
                     Organization= "MPL eLearning XR Services",
                     Location= "Bogotá, Colombia",
@@ -120,7 +121,7 @@ namespace ResumeBuilder.Data
                 context.Add(profileEntry);
             }
 
-            context.SaveChanges();            
+            context.SaveChanges();
         }
 
         //public static void Initialize(context)
