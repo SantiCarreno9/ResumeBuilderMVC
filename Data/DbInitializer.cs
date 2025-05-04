@@ -62,7 +62,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=Enum.GetName(EntryCategory.Education),
+                    Category=EntryCategory.Education,
                     Title= "Game Programming",
                     Organization= "Centennial College",
                     Location= "Toronto, Ontario, Canada",
@@ -73,7 +73,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=Enum.GetName(EntryCategory.Education),
+                    Category=EntryCategory.Education,
                     Title= "Bachelor of Mechatronics Engineering",
                     Organization= "Universidad Militar Nueva Granada",
                     Location= "Bogotá, Colombia",
@@ -84,7 +84,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=Enum.GetName(EntryCategory.WorkExperience),
+                    Category=EntryCategory.WorkExperience,
                     Title= "VR Developer",
                     Organization= "Somnium Space",
                     Location= "Prague, Czech Republic",
@@ -95,7 +95,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=Enum.GetName(EntryCategory.WorkExperience),
+                    Category=EntryCategory.WorkExperience,
                     Title= "Unity Developer",
                     Organization= "Consultoria GP S.A.S",
                     Location= "Medellín, Colombia",
@@ -106,7 +106,7 @@ namespace ResumeBuilder.Data
                 new ProfileEntry
                 {
                     UserId = userId,
-                    Category=Enum.GetName(EntryCategory.WorkExperience),
+                    Category=EntryCategory.WorkExperience,
                     Title= "VR Developer",
                     Organization= "MPL eLearning XR Services",
                     Location= "Bogotá, Colombia",

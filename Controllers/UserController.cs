@@ -60,7 +60,7 @@ namespace ResumeBuilder.Controllers
 
             ViewData["Context"] = "User";
             if (personalInfo == null)
-                return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
+                return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", new VMPersonalInfo());
 
             if (personalInfo.AdditionalContactInfo != null)
                 ViewData["Contacts"] = JsonConvert.DeserializeObject<List<AdditionalContact>>(personalInfo.AdditionalContactInfo);
@@ -75,7 +75,7 @@ namespace ResumeBuilder.Controllers
             ViewData["Context"] = "User";
             if (personalInfo != null)
                 return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
-            else return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
+            else return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", new VMPersonalInfo());
         }
 
         [ActionName("PersonalInfo")]
@@ -106,9 +106,9 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("ProfileEntriesView")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntriesView(string category)
+        public async Task<IActionResult> GetProfileEntriesView(EntryCategory[] category)
         {
-            var profileEntries = await _repository.GetProfileEntriesByCategory(User.GetId(), category);
+            var profileEntries = await _repository.GetProfileEntriesByCategories(User.GetId(), category);
 
             if (profileEntries == null)
                 return NoContent();
@@ -120,7 +120,7 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("ProfileEntryForm")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntryForm(string? id, string? category)
+        public async Task<IActionResult> GetProfileEntryForm(string? id, EntryCategory? category)
         {
             ProfileEntry? profileEntry = null;
             if (id != null)
@@ -131,7 +131,7 @@ namespace ResumeBuilder.Controllers
             {
                 profileEntry = new ProfileEntry();
                 profileEntry.Id = Guid.NewGuid().ToString();
-                profileEntry.Category = category ?? Enum.GetName(EntryCategory.WorkExperience);
+                profileEntry.Category = category ?? EntryCategory.WorkExperience;
             }
 
             ViewData["Context"] = "User";

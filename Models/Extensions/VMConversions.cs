@@ -50,7 +50,7 @@ namespace ResumeBuilder.Models.Extensions
                 PersonalInfo = JsonSerializer.Serialize(vmResume.PersonalInfo),
                 ProfileEntries = JsonSerializer.Serialize(vmResume.ProfileEntries),
                 ModifiedAt = vmResume.ModifiedAt,
-                OrderedCategories = vmResume.OrderedCategories,
+                OrderedCategories = JsonSerializer.Serialize(vmResume.ProfileEntries),
             };
         }
 
@@ -63,7 +63,7 @@ namespace ResumeBuilder.Models.Extensions
                 PersonalInfo = resume.PersonalInfo != null ? JsonSerializer.Deserialize<VMPersonalInfo>(resume.PersonalInfo) : new VMPersonalInfo(),
                 ProfileEntries = resume.ProfileEntries != null ? JsonSerializer.Deserialize<List<ProfileEntry>>(resume.ProfileEntries) : new List<ProfileEntry>(),
                 ModifiedAt = resume.ModifiedAt,
-                OrderedCategories = resume.OrderedCategories,
+                OrderedCategories = resume.OrderedCategories != null ? JsonSerializer.Deserialize<EntryCategory[]>(resume.OrderedCategories) : Enum.GetValues<EntryCategory>(),
             };
         }
 

@@ -11,7 +11,7 @@ namespace ResumeBuilder.Repositories.Contracts
 
         Task<ProfileEntry?> GetProfileEntry(string userId, string id);
         Task<IEnumerable<ProfileEntry>?> GetProfileEntries(string userId);
-        Task<IEnumerable<ProfileEntry>?> GetProfileEntriesByCategory(string userId, string entryCategory);
+        Task<IEnumerable<ProfileEntry>?> GetProfileEntriesByCategories(string userId, EntryCategory[] entryCategory);
         Task<ProfileEntry?> AddProfileEntry(ProfileEntry profileEntry);
         Task<ProfileEntry?> UpdateProfileEntry(string userId, string id, ProfileEntry profileEntry);
         Task DeleteProfileEntry(string userId, string id);

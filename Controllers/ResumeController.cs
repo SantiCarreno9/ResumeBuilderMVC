@@ -80,7 +80,7 @@ namespace ResumeBuilder.Controllers
             }
 
             var vmResume = resume.ConvertToViewModel();
-
+            
             ViewData["Template"] = "/Views/Resume/Templates/Template" + templateId + ".cshtml";
 
             return PartialView("/Views/Resume/Templates/Template" + templateId + ".cshtml", vmResume);
@@ -215,7 +215,7 @@ namespace ResumeBuilder.Controllers
             ViewData["Context"] = "Resume";
             ViewData["ResumeId"] = resumeId;
             if (personalInfo == null)
-                return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
+                return PartialView("/Views/Shared/DisplayTemplates/VMPersonalInfo.cshtml", new VMPersonalInfo());
 
             if (personalInfo.AdditionalContactInfo != null)
                 ViewData["Contacts"] = JsonConvert.DeserializeObject<List<AdditionalContact>>(personalInfo.AdditionalContactInfo);
@@ -232,7 +232,7 @@ namespace ResumeBuilder.Controllers
             ViewData["ResumeId"] = resumeId;
             if (personalInfo != null)
                 return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", personalInfo.ConvertToViewModel());
-            else return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", new PersonalInfo());
+            else return PartialView("/Views/Shared/EditorTemplates/VMPersonalInfo.cshtml", new VMPersonalInfo());
         }
 
         [ActionName("PersonalInfo")]
@@ -293,7 +293,7 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("ProfileEntryForm")]
         [HttpGet]
-        public async Task<IActionResult> GetProfileEntryForm(string? id, string? resumeId, string? category)
+        public async Task<IActionResult> GetProfileEntryForm(string? id, string? resumeId, EntryCategory? category)
         {
             ProfileEntry? profileEntry = null;
             if (id != null && resumeId != null)
@@ -306,7 +306,7 @@ namespace ResumeBuilder.Controllers
             {
                 profileEntry = new ProfileEntry();
                 profileEntry.Id = Guid.NewGuid().ToString();
-                profileEntry.Category = category ?? Enum.GetName(EntryCategory.WorkExperience);
+                profileEntry.Category = category ?? EntryCategory.WorkExperience;
             }
 
             ViewData["Context"] = "Resume";
@@ -316,9 +316,9 @@ namespace ResumeBuilder.Controllers
 
         [ActionName("LoadProfileEntriesFromProfile")]
         [HttpGet]
-        public async Task<IActionResult> LoadProfileEntriesFromProfile(string resumeId, string category)
+        public async Task<IActionResult> LoadProfileEntriesFromProfile(string resumeId, EntryCategory[]? category)
         {
-            var profileEntries = await _userRepository.GetProfileEntriesByCategory(User.GetId(), category);
+            var profileEntries = await _userRepository.GetProfileEntriesByCategories(User.GetId(), category?? []);
             if (profileEntries == null)
                 return NotFound();
 
@@ -351,6 +351,17 @@ namespace ResumeBuilder.Controllers
                 return NotFound();
 
             return Ok(vmProfileEntry);
+        }
+
+        [ActionName("CategoriesOrder")]
+        [HttpPut]
+        public async Task<IActionResult> UpdateProfileEntryCategoriesOrder(string resumeId, string[] categories)
+        {
+            var orderedCategories = await _resumeRepository.UpdateCategoriesOrder(User.GetId(), resumeId, categories);
+            if (orderedCategories == null)
+                return NotFound();
+            
+            return Ok(orderedCategories);
         }
 
         // POST: User/Delete/5

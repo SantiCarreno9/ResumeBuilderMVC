@@ -7,21 +7,19 @@
             return "";
         string startDateText = startDate.Value.ToString("MMM yyyy");
         string endDateText = endDate.HasValue ? endDate.Value.ToString("MMM yyyy") : "Present";
-        return startDate + " - " + endDate;
+        return startDateText + " - " + endDateText;
     }
 
-    string[]? orderedCategories = null;
-    if (Model.OrderedCategories != null)
-        orderedCategories = (string[]?)(ViewData["OrderedCategories"]);
-    if (orderedCategories == null)
-        orderedCategories = Enum.GetNames(typeof(EntryCategory));
+    EntryCategory[] orderedCategories = Model.OrderedCategories != null ? Model.OrderedCategories : Enum.GetValues<EntryCategory>();
 
     var skills = Model.ResumeInfo?.SkillsObject;
     var contacts = Model.PersonalInfo?.Contacts;
-    var educationEntries = Model.ProfileEntries?.Where(x => !string.IsNullOrEmpty(x.Category) && x.Category.Equals(Enum.GetName(EntryCategory.Education)));
+    var educationEntries = Model.ProfileEntries?.Where(x => x.Category == EntryCategory.Education);
 }
 @if (Model == null)
-    return;
+{
+    return;   
+}
 
 <div class="resume">
     <header id="header">
@@ -56,13 +54,13 @@
                 <h2>CONTACT</h2>
                 <br>
                 <!-- PHONE NUMBER -->
-                @if(Model.PersonalInfo?.PhoneNumber!=null)
+                @if (Model.PersonalInfo?.PhoneNumber != null)
                 {
                     <p>
                         <i class="fas fa-phone" aria-hidden="true"></i>
                         @Model?.PersonalInfo?.PhoneNumber
                     </p>
-                }                
+                }
                 <!-- EMAIL -->
                 <p style="word-wrap:anywhere">
                     <a href="mailto:@Model?.PersonalInfo?.Email" target="_blank" rel="noopener noreferrer">
@@ -118,7 +116,7 @@
                 }
             </section>
 
-            @if (educationEntries != null && educationEntries.Count()>0)
+            @if (educationEntries != null && educationEntries.Count() > 0)
             {
                 <section>
                     <h2>EDUCATION</h2>
@@ -158,7 +156,7 @@
                 {
                     if (item.Equals("Education"))
                         continue;
-                    var entries = Model.ProfileEntries?.Where(x => !string.IsNullOrEmpty(x.Category) && x.Category.Equals(item));
+                    var entries = Model.ProfileEntries?.Where(x => x.Category == item);
                     if (entries != null && entries.Count() > 0)
                     {
                         <section>
@@ -169,6 +167,10 @@
                                 <h3>@entry.Title</h3>
                                 <h4>@entry.Organization</h4>
                                 <h4>@(GetDates(entry.StartDate, entry.EndDate))</h4>
+                                @if (entry.Details != null)
+                                {
+                                    <h4>@Html.Raw(entry.Details)</h4>
+                                }
                                 <br>
                             }
                         </section>

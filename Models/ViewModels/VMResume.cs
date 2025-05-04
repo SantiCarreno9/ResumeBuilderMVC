@@ -7,7 +7,7 @@
         public VMResumeBasicInfo? ResumeInfo { get; set; }
         public VMPersonalInfo? PersonalInfo { get; set; }
         public List<ProfileEntry>? ProfileEntries { get; set; }
-        public string? OrderedCategories { get; set; }
+        public EntryCategory[] OrderedCategories { get; set; }
         public DateTime? ModifiedAt { get; set; }
     }
 }

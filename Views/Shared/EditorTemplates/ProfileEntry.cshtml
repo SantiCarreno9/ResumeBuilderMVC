@@ -8,13 +8,19 @@
     string? resumeId = null;
     if (ViewData.ContainsKey("ResumeId") && ViewData["ResumeId"] != null)
         resumeId = ViewData["ResumeId"]!.ToString();
+    var entriesValues = Enum.GetValues<EntryCategory>();
 }
 
 <div id="profile-entry-form-@(Model.Id)" class="profile-entry-container d-flex flex-row">
     <form asp-action="Create" id="form">
         <div asp-validation-summary="All" class="text-danger"></div>
         <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="Category" />
+        <select class="form-control" asp-for="Category">
+            @foreach(var item in entriesValues)
+            {
+                <option value="@item">@ProfileEntry.GetCategoryName(item)</option>
+            }
+        </select>
         <div class="form-floating mb-2">
             <input asp-for="Title" class="form-control" style="border-bottom:var(--bs-border-width) solid var(--bs-border-color)" />
             <label asp-for="Title" class="control-label"></label>
@@ -76,7 +82,9 @@
         updateEndDateVisibility();
 
         function updateEndDateVisibility() {
-            if (!$(currentCheck)[0].checked)
+            if($(currentCheck)==null)
+                return;
+            if (!$(currentCheck).is(':checked'))
                 $(endDateInput).parent().css('display', 'block');
             else
                 $(endDateInput).parent().css('display', 'none');
@@ -90,7 +98,7 @@
             let endpoint = '@Url.Action("ProfileEntry")';
             if ('@context' == 'Resume') {
                 endpoint = endpoint.concat("?resumeId=@resumeId");
-            }            
+            }
             const form = $(parent).find("form");
             if ($(form).valid()) {
                 var formData = $(form).serialize();

@@ -1,9 +1,8 @@
 ﻿@model ResumeBuilder.Models.ViewModels.VMResume
 
 @{
-    // ViewData["Title"] = "Create";
-    // Layout = "~/Views/Shared/_CustomLayout.cshtml";
-    string[] entries = Enum.GetNames(typeof(EntryCategory));
+    // ViewData["Title"] = "Create";    
+    var entries = Model.OrderedCategories;
 }
 
 <div class="container w-100">
@@ -13,15 +12,18 @@
         </h1>
         <i class="fas fa-edit"></i>
     </div>
-    <hr />
+    <hr/>
     <div class="main-container">
         <div class="resume-editor-container">
             <div class="accordion" id="customAccordion">
                 <div class="editor">
                     <div class="accordion-item">
                         <div class="accordion-header">
-                            <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
-                                    onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-resume" aria-expanded="false" aria-controls="collapse-resume" )">
+                            <button class="accordion-button"
+                                    style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;"
+                                    type="button"
+                                    onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-resume"
+                                    aria-expanded="false" aria-controls="collapse-resume">
                                 Resume Info
                             </button>
                         </div>
@@ -32,12 +34,16 @@
                     </div>
                     <div class="accordion-item">
                         <div class="accordion-header">
-                            <button class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
-                                    onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-personal" aria-expanded="false" aria-controls="collapse-personal" )">
+                            <button class="accordion-button"
+                                    style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;"
+                                    type="button"
+                                    onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-personal"
+                                    aria-expanded="false" aria-controls="collapse-personal">
                                 Personal Info
                             </button>
                         </div>
-                        <div id="collapse-personal" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
+                        <div id="collapse-personal" class="accordion-collapse collapse"
+                             data-bs-parent="#customAccordion">
                             <div id="personal-info-placeholder" class="accordion-body">
                             </div>
                         </div>
@@ -46,8 +52,11 @@
                     {
                         <div class="accordion-item" id="@item-accordion-item">
                             <div class="accordion-header">
-                                <div class="accordion-button" style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;" type="button"
-                                     onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-@item" aria-expanded="false" aria-controls="collapse-@item" )">
+                                <div class="accordion-button"
+                                     style="display:flex; justify-content:end; text-align:end; padding:0.5rem 1rem;"
+                                     type="button"
+                                     onclick:preventDefault data-bs-toggle="collapse" data-bs-target="#collapse-@item"
+                                     aria-expanded="false" aria-controls="collapse-@item">
                                     @ProfileEntry.GetCategoryName(item)
                                     <div style="flex:1;align-content:end;">
                                         <button class="btn arrow-btn" type="button" id="move-up-btn">
@@ -56,12 +65,15 @@
                                         <button class="btn arrow-btn" type="button" id="move-down-btn">
                                             &#8681;
                                         </button>
-                                        <buton class="btn-close" type="button" id="add-@item-btn" style="transform:rotate(45deg)" onclick:preventDefault></buton>
+                                        <buton class="btn-close" type="button" id="add-@item-btn"
+                                               style="transform:rotate(45deg)"
+                                               onclick:preventDefault></buton>
                                     </div>
                                 </div>
                             </div>
-                            <div id="collapse-@item" class="accordion-collapse collapse" data-bs-parent="#customAccordion">
-                                <button id="load-@item-btn" type="button" onclick:preventDefault">
+                            <div id="collapse-@item" class="accordion-collapse collapse"
+                                 data-bs-parent="#customAccordion">
+                                <button id="load-@item-btn" type="button" onclick:preventDefault>
                                     Load from Profile
                                 </button>
                                 <div id="@item-list" class="accordion-body">
@@ -72,8 +84,8 @@
                 </div>
             </div>
             <div class="form-group mt-2">
-                <input type="button" id="resume-save-button" value="Save" class="btn btn-primary" />
-                <input type="button" id="cancel-save-button" value="Cancel" class="btn btn-secondary" />
+                <input type="button" id="resume-save-button" value="Save" class="btn btn-primary"/>
+                <input type="button" id="resume-cancel-button" value="Cancel" class="btn btn-secondary"/>
             </div>
         </div>
         <div id="resume-preview-container">
@@ -81,12 +93,13 @@
     </div>
 </div>
 
-<button id="open-modal-btn" type="button" class="btn btn-primary" style="display:none" data-bs-toggle="modal" data-bs-target="#exampleModal">
+<button id="open-modal-btn" type="button" class="btn btn-primary" style="display:none" data-bs-toggle="modal"
+        data-bs-target="#exampleModal">
     Launch demo modal
 </button>
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="formsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -106,7 +119,9 @@
 </style>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"
+            integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     @* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> *@
     <script type="text/javascript">
 
@@ -129,6 +144,7 @@
             }
 
             $("#resume-cancel-button").click(function () {
+                debugger;
                 $.ajax({
                     url: '@Url.Action("ResumeInfo")?resumeId=@Model.Id',
                     type: "PUT",
@@ -169,7 +185,7 @@
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("ResumeBasicInfoView")',
-                    data: { resumeId: '@Model.Id'},
+                    data: {resumeId: '@Model.Id'},
                     success: function (result) {
                         const container = $('#resume-info-placeholder');
                         $(container).empty();
@@ -188,7 +204,7 @@
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("PersonalInfoView")',
-                    data: { resumeId: '@Model.Id' },
+                    data: {resumeId: '@Model.Id'},
                     success: function (result) {
                         const container = $('#personal-info-placeholder');
                         $(container).empty();
@@ -204,13 +220,13 @@
             const entryCategories = @Html.Raw(Json.Serialize(entries));
             const accordionItemsContainer = $("div.editor");
 
-            for(const entry of entryCategories){
+            for (const entry of entryCategories) {
                 loadProfileEntries(entry);
-                $("#load-"+entry+"-btn").click(function () {
+                $("#load-" + entry + "-btn").click(function () {
                     $.ajax({
                         url: '@Url.Action("LoadProfileEntriesFromProfile")',
                         type: "GET",
-                        data: {resumeId:'@Model.Id', category: entry},
+                        data: {resumeId: '@Model.Id', category: entry},
                         success: function (response) {
                             getResumePreview();
                             loadProfileEntries(entry);
@@ -220,29 +236,31 @@
                         }
                     });
                 });
-                $("#add-"+entry+"-btn").click(function () {
+                $("#add-" + entry + "-btn").click(function () {
                     openEntryForm(entry);
                 });
 
-                var accordionItem = $("#"+entry+"-accordion-item");
+                var accordionItem = $("#" + entry + "-accordion-item");
                 const upButton = $(accordionItem).find("#move-up-btn");
                 const downButton = $(accordionItem).find("#move-down-btn");
 
-                $(upButton).click(function(){
+                $(upButton).click(function () {
                     const item = $(this).parent().parent().parent().parent();
                     var currentIndex = $(item).index();
-                    if(currentIndex==2)
+                    if (currentIndex == 2)
                         return;
-                    $(item).insertBefore($(accordionItemsContainer).children().eq(currentIndex-1));
+                    $(item).insertBefore($(accordionItemsContainer).children().eq(currentIndex - 1));
+                    updateCategoriesOrder();
                 });
 
-                $(downButton).click(function(){
+                $(downButton).click(function () {
                     const item = $(this).parent().parent().parent().parent();
                     var currentIndex = $(item).index();
-                    const accordionItemsCount = $(accordionItemsContainer).children().length -1;
-                    if(currentIndex == accordionItemsCount)
+                    const accordionItemsCount = $(accordionItemsContainer).children().length - 1;
+                    if (currentIndex == accordionItemsCount)
                         return;
-                    $(item).insertAfter($(accordionItemsContainer).children().eq(currentIndex+1));
+                    $(item).insertAfter($(accordionItemsContainer).children().eq(currentIndex + 1));
+                    updateCategoriesOrder();
                 });
 
                 // $("#add-"+entry+"-btn").click(function () {
@@ -254,7 +272,7 @@
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("ProfileEntriesView")',
-                    data: { resumeId:'@Model.Id', category: category },
+                    data: {resumeId: '@Model.Id', category: category},
                     success: function (result) {
                         const container = "#" + category + "-list";
                         $(container).empty();
@@ -276,7 +294,7 @@
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("ProfileEntryForm")',
-                    data: { resumeId:'@Model.Id', category: category},
+                    data: {resumeId: '@Model.Id', category: category},
                     success: function (result) {
                     },
                     error: function () {
@@ -285,14 +303,25 @@
                 })
             }
 
-            function updateCategoriesOrder(){
+            function updateCategoriesOrder() {
                 let accordionItems = $(accordionItemsContainer).children();
                 var categories = []
-                for(let i=2;i<accordionItems.length;i++){
-                    var id = $(accordionItems).attr('id');
-                    console.log(id);
-                    // categories[i-2]=
+                for (let i = 2; i < accordionItems.length; i++) {
+                    var id = $(accordionItems).eq(i).attr('id').split('-')[0];
+                    categories[i - 2] = id;
                 }
+                $.ajax({
+                    url: '@Url.Action("CategoriesOrder")?resumeId=' + '@Model.Id',
+                    type: 'PUT',
+                    data: {categories: categories},
+                    success: function (response) {
+                        console.log(response);
+                        getResumePreview();
+                    },
+                    error: function (request, status, error) {
+                        console.log(request.responseText);
+                    }
+                });
             }
 
             // Preview
@@ -300,7 +329,7 @@
                 $.ajax({
                     url: '@Url.Action("ResumePreview")?templateid=' + templateId,
                     type: 'GET',
-                    data: { resumeId: '@Model.Id', templateId: templateId },
+                    data: {resumeId: '@Model.Id', templateId: templateId},
                     success: function (response) {
                         // console.log(response.request);
                         console.log('response');
@@ -315,38 +344,36 @@
 
             // Request Observer
             $(document).ajaxSuccess(function (event, xhr, settings) {
-            const url = new URL(settings.url, window.location.origin); // Parse the URL
-            const path = url.pathname; // Extract the path (e.g., /PersonalInfoForm)
-            if (path === '@Url.Action("PersonalInfoForm")') {//Load PersonalInfoForm to edit it
-                showContentOnModal(xhr.responseText);
-            } else if (path === '@Url.Action("PersonalInfo")') {//Save changes made on the PersonalInfoForm
-                loadPersonalInfo();
-                hideForm();
-                getResumePreview();
-            } else if (path === '@Url.Action("ProfileEntryForm")') {//Load ProfileEntryForm to edit it
-                showContentOnModal(xhr.responseText);
-            } else if (path === '@Url.Action("ProfileEntry")') {//Save changes made on the ProfileEntryForm
-                const response = xhr.responseJSON;
-                if(response!=null){
-                    loadProfileEntries(response.category);
+                const url = new URL(settings.url, window.location.origin); // Parse the URL
+                const path = url.pathname; // Extract the path (e.g., /PersonalInfoForm)
+                if (path === '@Url.Action("PersonalInfoForm")') {//Load PersonalInfoForm to edit it
+                    showContentOnModal(xhr.responseText);
+                } else if (path === '@Url.Action("PersonalInfo")') {//Save changes made on the PersonalInfoForm
+                    loadPersonalInfo();
+                    hideForm();
+                    getResumePreview();
+                } else if (path === '@Url.Action("ProfileEntryForm")') {//Load ProfileEntryForm to edit it
+                    showContentOnModal(xhr.responseText);
+                } else if (path === '@Url.Action("ProfileEntry")') {//Save changes made on the ProfileEntryForm
+                    const response = xhr.responseJSON;
+                    if (response != null) {
+                        loadProfileEntries(response.category);
+                    }
+                    hideForm();
+                    getResumePreview();
+                } else if (path === '@Url.Action("ResumeBasicInfoForm")') {//Save changes made on the ProfileEntryForm
+                    showContentOnModal(xhr.responseText);
+                } else if (path === '@Url.Action("ResumeBasicInfo")') {//Save changes made on the ProfileEntryForm
+                    loadResumeInfo();
+                    hideForm();
+                    getResumePreview();
                 }
-                hideForm();
-                getResumePreview();
-            }
-            else if (path === '@Url.Action("ResumeBasicInfoForm")') {//Save changes made on the ProfileEntryForm
-                showContentOnModal(xhr.responseText);
-            }
-            else if (path === '@Url.Action("ResumeBasicInfo")') {//Save changes made on the ProfileEntryForm
-                loadResumeInfo();
-                hideForm();
-                getResumePreview();
-            }
             });
 
             var isModalWindowOpen = false;
 
-            function showContentOnModal(content){
-                isModalWindowOpen=true;
+            function showContentOnModal(content) {
+                isModalWindowOpen = true;
                 $(".modal-body").empty();
                 $(".modal-body").append(content);
                 $(".modal-body").find("#cancel-btn").click(function () {
@@ -355,13 +382,13 @@
                 $("#open-modal-btn").trigger("click");
             }
 
-            function hideForm() {                
-                if(!isModalWindowOpen){
+            function hideForm() {
+                if (!isModalWindowOpen) {
                     return;
                 }
-                
+
                 $(".btn-close").trigger("click");
-                isModalWindowOpen=false;
+                isModalWindowOpen = false;
             }
         });
     </script>

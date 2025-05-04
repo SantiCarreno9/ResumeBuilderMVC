@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Details";
-    Layout = "~/Views/Shared/_CustomLayout.cshtml";
-    string[] entries = Enum.GetNames(typeof(EntryCategory));
+    var entriesNames = Enum.GetNames(typeof(EntryCategory));
+    var entriesValues = Enum.GetValues<EntryCategory>();
 }
 
 <h1>Your Profile</h1>
@@ -10,9 +10,9 @@
     <div class="info-section-title">
         <div id="personal-info-placeholder" class="w-100"></div>
     </div>
-    <hr />
-    <br />
-    @foreach (var item in entries)
+    <hr/>
+    <br/>
+    @foreach (var item in entriesValues)
     {
         <div class="info-section-title">
             <h4>@ProfileEntry.GetCategoryName(item)</h4>
@@ -20,13 +20,14 @@
                 <i class="fas fa-plus-circle"></i>
             </button>
         </div>
-        <hr />
+        <hr/>
         <dl id="@item-list" class="row">
         </dl>
-        <br />
+        <br/>
     }
 </div>
-<button id="open-modal-btn" type="button" class="btn btn-primary" style="display:none" data-bs-toggle="modal" data-bs-target="#exampleModal">
+<button id="open-modal-btn" type="button" class="btn btn-primary" style="display:none" data-bs-toggle="modal"
+        data-bs-target="#exampleModal">
     Launch demo modal
 </button>
 
@@ -46,7 +47,9 @@
 
 @section Scripts
 {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"
+            integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             // Personal Info
@@ -68,22 +71,31 @@
             }
 
             // Profile Entries
-            const entryCategories = @Html.Raw(Json.Serialize(entries));
-
-            for(const entry of entryCategories){
-                loadProfileEntries(entry);
-                $("#add-"+entry).click(function () {
-                openEntryForm(entry);
-            })
+            const entryValues = @Html.Raw(Json.Serialize(entriesValues));
+            const entryNames = @Html.Raw(Json.Serialize(entriesNames));
+            const containers = [];
+            for (const entry of entryValues) {
+                const containerId = "#" + entryNames[entry] + "-list";
+                containers.push(containerId);
+                $("#add-" + entryNames[entry]).click(function () {
+                    openEntryForm(entry);
+                })
             }
 
-            function loadProfileEntries(category) {
+            loadAllEntries();
+
+            function loadAllEntries() {
+                for (const entry of entryValues) {
+                    loadProfileEntries(entry, containers[entry]);
+                }
+            }
+
+            function loadProfileEntries(category, container) {
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("ProfileEntriesView")',
-                    data: { category: category },
+                    data: {category: category},
                     success: function (result) {
-                        const container = "#" + category + "-list";
                         $(container).empty();
                         $(container).append(result);
                         const containerJs = $(container)[0];
@@ -103,7 +115,7 @@
                 $.ajax({
                     url: '@Url.Action("ProfileEntryForm")',
                     type: 'GET',
-                    data: { category: category },
+                    data: {category: category},
                     success: function (result) {
                     },
                     error: function () {
@@ -114,25 +126,24 @@
 
             //Listener
 
-        $(document).ajaxSuccess(function (event, xhr, settings) {
-            const url = new URL(settings.url, window.location.origin); // Parse the URL
-            const path = url.pathname; // Extract the path (e.g., /PersonalInfoForm)
+            $(document).ajaxSuccess(function (event, xhr, settings) {
+                const url = new URL(settings.url, window.location.origin); // Parse the URL
+                const path = url.pathname; // Extract the path (e.g., /PersonalInfoForm)
 
-            if (path === '@Url.Action("PersonalInfoForm")') {//Load PersonalInfoForm to edit it
-                showContentOnModal(xhr.responseText);
-            } else if (path === '@Url.Action("PersonalInfo")') {//Save changes made on the PersonalInfoForm
-                loadPersonalInfo();
-                hideForm();
-            } else if (path === '@Url.Action("ProfileEntryForm")') {//Load ProfileEntryForm to edit it
-                showContentOnModal(xhr.responseText);
-            } else if (path === '@Url.Action("ProfileEntry")') {//Save changes made on the ProfileEntryForm
-                const response = xhr.responseJSON;
-                loadProfileEntries(response.category);
-                hideForm();
-            }
-        });
+                if (path === '@Url.Action("PersonalInfoForm")') {//Load PersonalInfoForm to edit it
+                    showContentOnModal(xhr.responseText);
+                } else if (path === '@Url.Action("PersonalInfo")') {//Save changes made on the PersonalInfoForm
+                    loadPersonalInfo();
+                    hideForm();
+                } else if (path === '@Url.Action("ProfileEntryForm")') {//Load ProfileEntryForm to edit it
+                    showContentOnModal(xhr.responseText);
+                } else if (path === '@Url.Action("ProfileEntry")') {//Save changes made on the ProfileEntryForm
+                    loadAllEntries();
+                    hideForm();
+                }
+            });
 
-            function showContentOnModal(content){
+            function showContentOnModal(content) {
                 $(".modal-body").empty();
                 $(".modal-body").append(content);
                 $(".modal-body").find("#cancel-btn").click(function () {

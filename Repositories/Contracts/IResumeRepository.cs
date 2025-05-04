@@ -23,6 +23,8 @@ namespace ResumeBuilder.Repositories.Contracts
         Task<ProfileEntry?> UpdateResumeProfileEntry(string userId, string resumeId, ProfileEntry profileEntry);
         Task<List<ProfileEntry>?> UpdateResumeProfileEntries(string userId, string resumeId, List<ProfileEntry> profileEntries);
 
+        Task<string[]?> UpdateCategoriesOrder(string userId, string resumeId, string[] newCategoriesOrder);
+
         Task DeleteResume(string userId, string id);
         Task DeleteResumeProfileEntry(string userId, string resumeId, string id);
     }

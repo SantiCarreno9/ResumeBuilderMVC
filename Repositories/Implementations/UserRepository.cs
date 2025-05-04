@@ -73,12 +73,15 @@ namespace ResumeBuilder.Repositories.Implementations
             return profileEntries.OrderByDescending(x => x.StartDate);
         }
 
-        public async Task<IEnumerable<ProfileEntry>?> GetProfileEntriesByCategory(string userId, string entryCategory)
+        public async Task<IEnumerable<ProfileEntry>?> GetProfileEntriesByCategories(string userId, EntryCategory[] entryCategory)
         {
-            var profileEntries = _context.ProfileEntry.Where(pe => pe.UserId!.Equals(userId) && pe.Category.Equals(entryCategory)).AsNoTracking();
-            if (profileEntries == null)
-                return null;
-            return profileEntries.OrderByDescending(x => x.StartDate);
+            var profileEntries = _context.ProfileEntry
+                .Where(pe => pe.UserId!.Equals(userId));
+        
+            if (entryCategory.Length > 0)
+                profileEntries = profileEntries.Where(x => entryCategory.Contains(x.Category));
+        
+            return await profileEntries.OrderByDescending(x => x.StartDate).ToListAsync();
         }
 
         public async Task<ProfileEntry?> GetProfileEntry(string userId, string id)
@@ -110,7 +113,7 @@ namespace ResumeBuilder.Repositories.Implementations
             existingInfo.IsCurrent = profileEntry.IsCurrent;
             existingInfo.Category = profileEntry.Category;
             existingInfo.Details = profileEntry.Details;
-                        
+
             await _context.SaveChangesAsync();
             return profileEntry;
         }
@@ -130,9 +133,6 @@ namespace ResumeBuilder.Repositories.Implementations
 
         public void Dispose()
         {
-
         }
-
-
     }
 }

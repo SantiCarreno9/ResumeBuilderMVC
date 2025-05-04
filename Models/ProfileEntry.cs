@@ -8,7 +8,8 @@ namespace ResumeBuilder.Models
         Education,
         WorkExperience,
         Project,
-        Volunteer
+        Volunteer,
+        Other
     }
 
     public class ProfileEntry
@@ -16,8 +17,7 @@ namespace ResumeBuilder.Models
         [Key]
         public string Id { get; set; }
         [Required]
-        [Column(TypeName = "nvarchar(50)")]
-        public string? Category { get; set; }
+        public EntryCategory Category { get; set; } = EntryCategory.WorkExperience;
         [Required]
         [Column(TypeName = "nvarchar(50)")]
         public string? Title { get; set; }
@@ -43,14 +43,18 @@ namespace ResumeBuilder.Models
         public string? Details { get; set; }
 
         [Column(TypeName = "nvarchar(450)")]
-        public string? UserId { get; set; }
+        public string? UserId { get; set; }        
 
-        public static string GetCategoryName(string category)
+        public ProfileEntry()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
+        public static string GetCategoryName(EntryCategory category)
         {                        
             return category switch
             {
-                "WorkExperience" => "Experience",
-                _ => category
+                EntryCategory.WorkExperience => "Experience",
+                _ => category.ToString()
             };
         }
     }

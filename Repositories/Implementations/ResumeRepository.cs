@@ -244,6 +244,17 @@ namespace ResumeBuilder.Repositories.Implementations
         {
 
         }
-        
+
+        public async Task<string[]?> UpdateCategoriesOrder(string userId, string resumeId, string[] newCategoriesOrder)
+        {
+            var resume = await _context.Resumes.FindAsync(resumeId);
+            if (resume == null || !resume.UserId.Equals(userId) || resume.OrderedCategories == null)
+                return null;
+
+            resume.OrderedCategories = JsonConvert.SerializeObject(newCategoriesOrder);            
+            resume.ModifiedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return newCategoriesOrder;
+        }
     }
 }
