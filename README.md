@@ -1,4 +1,4 @@
-Resume Builder Website
+# Resume Builder Website
 
 A web application built with ASP.NET MVC that allows users to create and manage their resumes. Users can input personal information, add or edit work experience, and download a polished resume. The app includes custom authentication, asynchronous updates with AJAX, and persistent data using Entity Framework and SQLite.
 
